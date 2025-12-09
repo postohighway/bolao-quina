@@ -2,38 +2,107 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Bolão Quina - Painel Lotérica</title>
+  <title>Bolão - Painel Lotérica</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;}
-    header{background:#3f51b5;color:#fff;padding:12px 16px;text-align:center;font-weight:600;}
-    .container{max-width:900px;margin:10px auto;padding:10px;}
-    .box{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.15);margin-bottom:10px;}
-    table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.15);}
-    th,td{padding:6px 4px;border-bottom:1px solid #e0e0e0;text-align:left;}
-    th:nth-child(1),td:nth-child(1){width:40px;text-align:center;}
-    th:nth-child(3),td:nth-child(3){text-align:center;}
-    button{padding:4px 8px;font-size:12px;border-radius:4px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer;}
-    button.pago{background:#4caf50;color:#fff;border-color:#388e3c;font-weight:600;}
+    body{
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      margin:0;
+      background:#f5f5f5;
+    }
+    header{
+      background:#2e7d32;
+      color:#fff;
+      padding:12px 16px;
+      text-align:center;
+      font-weight:600;
+    }
+    .container{
+      max-width:900px;
+      margin:10px auto;
+      padding:10px;
+    }
+    .box{
+      background:#fff;
+      border-radius:8px;
+      padding:10px;
+      box-shadow:0 1px 3px rgba(0,0,0,.15);
+      margin-bottom:10px;
+    }
+    .linha{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin-bottom:6px;
+      font-size:13px;
+    }
+    .linha select{
+      font-size:13px;
+      padding:4px 6px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      background:#fff;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 1px 3px rgba(0,0,0,.15);
+    }
+    th,td{
+      padding:6px 4px;
+      border-bottom:1px solid #e0e0e0;
+      text-align:left;
+    }
+    thead{
+      background:#66bb6a;
+      color:#fff;
+    }
+    th:nth-child(1),td:nth-child(1){
+      width:40px;
+      text-align:center;
+    }
+    th:nth-child(3),td:nth-child(3){
+      text-align:center;
+    }
+    button{
+      padding:4px 8px;
+      font-size:12px;
+      border-radius:4px;
+      border:1px solid #ccc;
+      background:#f5f5f5;
+      cursor:pointer;
+    }
+    button.pago{
+      background:#4caf50;
+      color:#fff;
+      border-color:#2e7d32;
+      font-weight:600;
+    }
     tr.pago{background:#c8e6c9;}
   </style>
 </head>
 <body>
-<header>Bolão Quina - Painel da Lotérica</header>
+<header>Bolão - Painel da Lotérica</header>
 <div class="container">
   <div class="box">
+    <div class="linha">
+      <label for="selConc">Concurso:</label>
+      <select id="selConc"></select>
+    </div>
     <div><strong>Total recebidos na Lotérica:</strong> <span id="qtdeLot">0</span></div>
     <div id="status" style="font-size:12px;margin-top:4px;">Carregando...</div>
   </div>
   <div class="box">
     <table>
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Nome</th>
-          <th>Pago na Lotérica</th>
-        </tr>
+      <tr>
+        <th>#</th>
+        <th>Nome</th>
+        <th>Pago na Lotérica</th>
+      </tr>
       </thead>
       <tbody id="tabela"></tbody>
     </table>
@@ -46,6 +115,8 @@
   const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
   const sb = createClient(supabaseUrl, supabaseKey);
 
+  let concursos = [];
+  let concursoId = null;
   let participantes = [];
 
   function atualizarResumo(){
@@ -70,7 +141,7 @@
         tdNome.textContent = p.nome;
 
         const tdBtn = document.createElement("td");
-        tdBtn.style.textAlign = "center";
+        tdBtn.style.textAlign="center";
         const btn = document.createElement("button");
         btn.textContent = p.pagou_loterica ? "Pago" : "Marcar pago";
         if (p.pagou_loterica) btn.classList.add("pago");
@@ -86,14 +157,22 @@
           btn.disabled = true;
           await sb.from("participantes").update({ pagou_loterica: novo }).eq("id", p.id);
           btn.disabled = false;
-          await carregar();
+          await carregarParticipantes();
         };
       });
     atualizarResumo();
   }
 
-  async function carregar(){
-    const { data, error } = await sb.from("participantes").select("*");
+  async function carregarParticipantes(){
+    if (!concursoId){
+      participantes = [];
+      renderTabela();
+      return;
+    }
+    const { data, error } = await sb
+      .from("participantes")
+      .select("*")
+      .eq("concurso_id", concursoId);
     if (error){
       document.getElementById("status").textContent = "Erro: " + error.message;
       return;
@@ -103,7 +182,34 @@
     renderTabela();
   }
 
-  carregar();
+  async function carregarConcursos(){
+    const { data, error } = await sb
+      .from("concursos")
+      .select("*")
+      .order("criado_em",{ascending:false});
+    const sel = document.getElementById("selConc");
+    sel.innerHTML = "";
+    if (error || !data || data.length === 0){
+      document.getElementById("status").textContent = "Nenhum concurso cadastrado.";
+      return;
+    }
+    concursos = data;
+    concursos.forEach(c=>{
+      const o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.nome;
+      sel.appendChild(o);
+    });
+    if (!concursoId) concursoId = concursos[0].id;
+    sel.value = concursoId;
+    sel.onchange = async ()=>{
+      concursoId = sel.value;
+      await carregarParticipantes();
+    };
+    await carregarParticipantes();
+  }
+
+  carregarConcursos();
 </script>
 </body>
 </html>

@@ -2,17 +2,64 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Bolão Quina - Lista Pública</title>
+  <title>Bolão - Lista Pública</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;}
-    header{background:#009688;color:#fff;padding:12px 16px;text-align:center;font-weight:600;}
-    .container{max-width:900px;margin:10px auto;padding:10px;}
-    .box{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.15);margin-bottom:10px;}
-    table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.15);font-size:13px;}
-    th,td{padding:6px 4px;border-bottom:1px solid #e0e0e0;text-align:left;}
-    thead{background:#b2dfdb;}
+    body{
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      margin:0;
+      background:#f5f5f5;
+    }
+    header{
+      background:#2e7d32;
+      color:#fff;
+      padding:12px 16px;
+      text-align:center;
+      font-weight:600;
+    }
+    .container{
+      max-width:900px;
+      margin:10px auto;
+      padding:10px;
+    }
+    .box{
+      background:#fff;
+      border-radius:8px;
+      padding:10px;
+      box-shadow:0 1px 3px rgba(0,0,0,.15);
+      margin-bottom:10px;
+    }
+    .linha{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin-bottom:6px;
+      font-size:13px;
+    }
+    .linha select{
+      font-size:13px;
+      padding:4px 6px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 1px 3px rgba(0,0,0,.15);
+      font-size:13px;
+    }
+    thead{
+      background:#66bb6a;
+      color:#fff;
+    }
+    th,td{
+      padding:6px 4px;
+      border-bottom:1px solid #e0e0e0;
+      text-align:left;
+    }
     th:nth-child(1),td:nth-child(1){width:40px;text-align:center;}
     tr.pago{background:#c8e6c9;}
     tr.prometeu{background:#fff9c4;}
@@ -20,11 +67,15 @@
   </style>
 </head>
 <body>
-<header>Bolão Quina - Lista Pública</header>
+<header>Bolão - Lista Pública</header>
 <div class="container">
   <div class="box">
-    <div style="font-size:13px;">
-      <strong>Legenda:</strong> 
+    <div class="linha">
+      <label for="selConc">Concurso:</label>
+      <select id="selConc"></select>
+    </div>
+    <div style="font-size:13px;margin-top:4px;">
+      <strong>Legenda:</strong>
       <span style="background:#c8e6c9;padding:2px 4px;border-radius:3px;">Pago</span>
       <span style="background:#fff9c4;padding:2px 4px;border-radius:3px;">Prometeu</span>
       <span style="background:#eeeeee;padding:2px 4px;border-radius:3px;">Não entrou</span>
@@ -34,11 +85,11 @@
   <div class="box">
     <table>
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Nome</th>
-          <th>Status</th>
-        </tr>
+      <tr>
+        <th>#</th>
+        <th>Nome</th>
+        <th>Status</th>
+      </tr>
       </thead>
       <tbody id="tabela"></tbody>
     </table>
@@ -51,45 +102,91 @@
   const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
   const sb = createClient(supabaseUrl, supabaseKey);
 
+  let concursos = [];
+  let concursoId = null;
+  let participantes = [];
+
   function classeLinha(p){
     let s = p.status || "nao_entrou";
     if (p.pagou_waldecir || p.pagou_loterica) s = "pago";
-    if (s === "pago") return "pago";
-    if (s === "prometeu") return "prometeu";
+    if (s==="pago") return "pago";
+    if (s==="prometeu") return "prometeu";
     return "nao-entrou";
   }
 
   function textoStatus(p){
     let s = p.status || "nao_entrou";
-    if (p.pagou_waldecir || p.pagou_loterica) s="pago";
+    if (p.pagou_waldecir || p.pagou_loterica) s = "pago";
     if (s==="pago") return "Pago";
     if (s==="prometeu") return "Prometeu";
     return "Não entrou";
   }
 
-  async function carregar(){
-    const { data, error } = await sb.from("participantes").select("*");
+  function renderTabela(){
+    const tbody = document.getElementById("tabela");
+    tbody.innerHTML = "";
+    participantes
+      .slice()
+      .sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"))
+      .forEach((p,idx)=>{
+        const tr = document.createElement("tr");
+        tr.className = classeLinha(p);
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td>${p.nome}</td>
+          <td>${textoStatus(p)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    document.getElementById("status").textContent = participantes.length ? "" : "Nenhum participante para este concurso.";
+  }
+
+  async function carregarParticipantes(){
+    if (!concursoId){
+      participantes = [];
+      renderTabela();
+      return;
+    }
+    const { data, error } = await sb
+      .from("participantes")
+      .select("*")
+      .eq("concurso_id", concursoId);
     if (error){
       document.getElementById("status").textContent = "Erro: " + error.message;
       return;
     }
-    const participantes = (data || []).slice().sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
-    const tbody = document.getElementById("tabela");
-    tbody.innerHTML = "";
-    participantes.forEach((p,idx)=>{
-      const tr = document.createElement("tr");
-      tr.className = classeLinha(p);
-      tr.innerHTML = `
-        <td>${idx+1}</td>
-        <td>${p.nome}</td>
-        <td>${textoStatus(p)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-    document.getElementById("status").textContent = "";
+    participantes = data || [];
+    renderTabela();
   }
 
-  carregar();
+  async function carregarConcursos(){
+    const { data, error } = await sb
+      .from("concursos")
+      .select("*")
+      .order("criado_em",{ascending:false});
+    const sel = document.getElementById("selConc");
+    sel.innerHTML = "";
+    if (error || !data || data.length === 0){
+      document.getElementById("status").textContent = "Nenhum concurso cadastrado.";
+      return;
+    }
+    concursos = data;
+    concursos.forEach(c=>{
+      const o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.nome;
+      sel.appendChild(o);
+    });
+    if (!concursoId) concursoId = concursos[0].id;
+    sel.value = concursoId;
+    sel.onchange = async ()=>{
+      concursoId = sel.value;
+      await carregarParticipantes();
+    };
+    await carregarParticipantes();
+  }
+
+  carregarConcursos();
 </script>
 </body>
 </html>
