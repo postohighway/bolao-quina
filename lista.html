@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bolão Quina - Lista Pública</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;}
+    header{background:#009688;color:#fff;padding:12px 16px;text-align:center;font-weight:600;}
+    .container{max-width:900px;margin:10px auto;padding:10px;}
+    .box{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.15);margin-bottom:10px;}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.15);font-size:13px;}
+    th,td{padding:6px 4px;border-bottom:1px solid #e0e0e0;text-align:left;}
+    thead{background:#b2dfdb;}
+    th:nth-child(1),td:nth-child(1){width:40px;text-align:center;}
+    tr.pago{background:#c8e6c9;}
+    tr.prometeu{background:#fff9c4;}
+    tr.nao-entrou{background:#eeeeee;}
+  </style>
+</head>
+<body>
+<header>Bolão Quina - Lista Pública</header>
+<div class="container">
+  <div class="box">
+    <div style="font-size:13px;">
+      <strong>Legenda:</strong> 
+      <span style="background:#c8e6c9;padding:2px 4px;border-radius:3px;">Pago</span>
+      <span style="background:#fff9c4;padding:2px 4px;border-radius:3px;">Prometeu</span>
+      <span style="background:#eeeeee;padding:2px 4px;border-radius:3px;">Não entrou</span>
+    </div>
+    <div id="status" style="font-size:12px;margin-top:4px;">Carregando...</div>
+  </div>
+  <div class="box">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
+  const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
+  const sb = createClient(supabaseUrl, supabaseKey);
+
+  function classeLinha(p){
+    let s = p.status || "nao_entrou";
+    if (p.pagou_waldecir || p.pagou_loterica) s = "pago";
+    if (s === "pago") return "pago";
+    if (s === "prometeu") return "prometeu";
+    return "nao-entrou";
+  }
+
+  function textoStatus(p){
+    let s = p.status || "nao_entrou";
+    if (p.pagou_waldecir || p.pagou_loterica) s="pago";
+    if (s==="pago") return "Pago";
+    if (s==="prometeu") return "Prometeu";
+    return "Não entrou";
+  }
+
+  async function carregar(){
+    const { data, error } = await sb.from("participantes").select("*");
+    if (error){
+      document.getElementById("status").textContent = "Erro: " + error.message;
+      return;
+    }
+    const participantes = (data || []).slice().sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+    const tbody = document.getElementById("tabela");
+    tbody.innerHTML = "";
+    participantes.forEach((p,idx)=>{
+      const tr = document.createElement("tr");
+      tr.className = classeLinha(p);
+      tr.innerHTML = `
+        <td>${idx+1}</td>
+        <td>${p.nome}</td>
+        <td>${textoStatus(p)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    document.getElementById("status").textContent = "";
+  }
+
+  carregar();
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bolão Quina - Painel Lotérica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;}
+    header{background:#3f51b5;color:#fff;padding:12px 16px;text-align:center;font-weight:600;}
+    .container{max-width:900px;margin:10px auto;padding:10px;}
+    .box{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.15);margin-bottom:10px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+    th,td{padding:6px 4px;border-bottom:1px solid #e0e0e0;text-align:left;}
+    th:nth-child(1),td:nth-child(1){width:40px;text-align:center;}
+    th:nth-child(3),td:nth-child(3){text-align:center;}
+    button{padding:4px 8px;font-size:12px;border-radius:4px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer;}
+    button.pago{background:#4caf50;color:#fff;border-color:#388e3c;font-weight:600;}
+    tr.pago{background:#c8e6c9;}
+  </style>
+</head>
+<body>
+<header>Bolão Quina - Painel da Lotérica</header>
+<div class="container">
+  <div class="box">
+    <div><strong>Total recebidos na Lotérica:</strong> <span id="qtdeLot">0</span></div>
+    <div id="status" style="font-size:12px;margin-top:4px;">Carregando...</div>
+  </div>
+  <div class="box">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Pago na Lotérica</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
+  const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
+  const sb = createClient(supabaseUrl, supabaseKey);
+
+  let participantes = [];
+
+  function atualizarResumo(){
+    const qtde = participantes.filter(p=>p.pagou_loterica).length;
+    document.getElementById("qtdeLot").textContent = qtde;
+  }
+
+  function renderTabela(){
+    const tbody = document.getElementById("tabela");
+    tbody.innerHTML = "";
+    participantes
+      .slice()
+      .sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"))
+      .forEach((p,idx)=>{
+        const tr = document.createElement("tr");
+        if (p.pagou_loterica) tr.classList.add("pago");
+
+        const tdIdx = document.createElement("td");
+        tdIdx.textContent = idx+1;
+
+        const tdNome = document.createElement("td");
+        tdNome.textContent = p.nome;
+
+        const tdBtn = document.createElement("td");
+        tdBtn.style.textAlign = "center";
+        const btn = document.createElement("button");
+        btn.textContent = p.pagou_loterica ? "Pago" : "Marcar pago";
+        if (p.pagou_loterica) btn.classList.add("pago");
+        tdBtn.appendChild(btn);
+
+        tr.appendChild(tdIdx);
+        tr.appendChild(tdNome);
+        tr.appendChild(tdBtn);
+        tbody.appendChild(tr);
+
+        btn.onclick = async () => {
+          const novo = !p.pagou_loterica;
+          btn.disabled = true;
+          await sb.from("participantes").update({ pagou_loterica: novo }).eq("id", p.id);
+          btn.disabled = false;
+          await carregar();
+        };
+      });
+    atualizarResumo();
+  }
+
+  async function carregar(){
+    const { data, error } = await sb.from("participantes").select("*");
+    if (error){
+      document.getElementById("status").textContent = "Erro: " + error.message;
+      return;
+    }
+    participantes = data || [];
+    document.getElementById("status").textContent = "";
+    renderTabela();
+  }
+
+  carregar();
+</script>
+</body>
+</html>

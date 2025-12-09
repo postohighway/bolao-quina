@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bolão Quina - Admin / Waldecir</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;}
+    header{background:#ff9800;color:#fff;padding:12px 16px;text-align:center;font-weight:600;}
+    .container{max-width:1100px;margin:10px auto;padding:10px;}
+    .box{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.15);margin-bottom:10px;}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.15);font-size:13px;}
+    th,td{padding:6px 4px;border-bottom:1px solid #e0e0e0;text-align:left;}
+    thead{background:#ffb300;}
+    th:nth-child(1),td:nth-child(1){width:40px;text-align:center;}
+    tr.pago{background:#c8e6c9;}
+    tr.prometeu{background:#fff9c4;}
+    tr.nao-entrou{background:#eeeeee;}
+    button{padding:4px 6px;font-size:12px;border-radius:4px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer;}
+    button.ativo{background:#4caf50;color:#fff;border-color:#388e3c;font-weight:600;}
+    input.obs{width:100%;font-size:12px;padding:3px 4px;}
+    select{font-size:12px;}
+    .resumo-item{font-size:13px;}
+  </style>
+</head>
+<body>
+<header>Bolão Quina - Painel Admin / Waldecir</header>
+
+<div class="container">
+  <div class="box">
+    <h3>Adicionar participante</h3>
+    <input type="text" id="nomeNovo" placeholder="Nome do participante" style="width:70%;padding:6px 8px;" />
+    <button id="btnAdd">Adicionar</button>
+  </div>
+
+  <div class="box">
+    <h3>Resumo</h3>
+    <div class="resumo-item"><strong>Total nomes:</strong> <span id="rTotal">0</span></div>
+    <div class="resumo-item"><strong>Pagos (Waldecir ou Lotérica):</strong> <span id="rPagos">0</span></div>
+    <div class="resumo-item"><strong>Prometeram:</strong> <span id="rPrometeu">0</span></div>
+    <div class="resumo-item"><strong>Não entraram:</strong> <span id="rNaoEntrou">0</span></div>
+  </div>
+
+  <div class="box">
+    <h3>Lista de participantes</h3>
+    <div id="status" style="font-size:12px;margin-bottom:4px;">Carregando...</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Status</th>
+          <th>Pagou Waldecir</th>
+          <th>Pagou Lotérica</th>
+          <th>Obs</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
+  const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
+  const sb = createClient(supabaseUrl, supabaseKey);
+
+  let participantes = [];
+
+  function classeLinha(p){
+    let status = p.status || "nao_entrou";
+    if (p.pagou_waldecir || p.pagou_loterica) status = "pago";
+    if (status === "pago") return "pago";
+    if (status === "prometeu") return "prometeu";
+    return "nao-entrou";
+  }
+
+  function atualizarResumo(){
+    const total = participantes.length;
+    let pagos=0, prom=0, nao=0;
+    participantes.forEach(p=>{
+      let s = p.status || "nao_entrou";
+      if (p.pagou_waldecir || p.pagou_loterica) s="pago";
+      if (s==="pago") pagos++;
+      else if (s==="prometeu") prom++;
+      else nao++;
+    });
+    document.getElementById("rTotal").textContent = total;
+    document.getElementById("rPagos").textContent = pagos;
+    document.getElementById("rPrometeu").textContent = prom;
+    document.getElementById("rNaoEntrou").textContent = nao;
+  }
+
+  function renderTabela(){
+    const tbody = document.getElementById("tabela");
+    tbody.innerHTML = "";
+    participantes
+      .slice()
+      .sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"))
+      .forEach((p,idx)=>{
+        const tr = document.createElement("tr");
+        tr.className = classeLinha(p);
+
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td>${p.nome}</td>
+          <td>
+            <select data-id="${p.id}" class="selStatus">
+              <option value="nao_entrou" ${p.status==="nao_entrou"?"selected":""}>Não entrou</option>
+              <option value="prometeu" ${p.status==="prometeu"?"selected":""}>Prometeu</option>
+              <option value="pago" ${p.status==="pago"?"selected":""}>Pago</option>
+            </select>
+          </td>
+          <td style="text-align:center">
+            <button class="btnWal ${p.pagou_waldecir?"ativo":""}" data-id="${p.id}">OK</button>
+          </td>
+          <td style="text-align:center">
+            <button class="btnLot ${p.pagou_loterica?"ativo":""}" data-id="${p.id}">OK</button>
+          </td>
+          <td>
+            <input class="obs" data-id="${p.id}" value="${p.obs || ""}" />
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+    // Eventos status
+    document.querySelectorAll(".selStatus").forEach(sel=>{
+      sel.onchange = async () => {
+        const id = sel.dataset.id;
+        const valor = sel.value;
+        await sb.from("participantes").update({ status: valor }).eq("id", id);
+        await carregar();
+      };
+    });
+
+    // Eventos Waldecir
+    document.querySelectorAll(".btnWal").forEach(btn=>{
+      btn.onclick = async () => {
+        const id = btn.dataset.id;
+        const p = participantes.find(x=>x.id===id);
+        await sb.from("participantes").update({ pagou_waldecir: !p.pagou_waldecir }).eq("id", id);
+        await carregar();
+      };
+    });
+
+    // Eventos Lotérica
+    document.querySelectorAll(".btnLot").forEach(btn=>{
+      btn.onclick = async () => {
+        const id = btn.dataset.id;
+        const p = participantes.find(x=>x.id===id);
+        await sb.from("participantes").update({ pagou_loterica: !p.pagou_loterica }).eq("id", id);
+        await carregar();
+      };
+    });
+
+    // Eventos Obs
+    document.querySelectorAll("input.obs").forEach(inp=>{
+      inp.onchange = async () => {
+        const id = inp.dataset.id;
+        await sb.from("participantes").update({ obs: inp.value }).eq("id", id);
+      };
+    });
+
+    atualizarResumo();
+  }
+
+  async function carregar(){
+    document.getElementById("status").textContent = "Carregando...";
+    const { data, error } = await sb.from("participantes").select("*");
+    if (error){
+      document.getElementById("status").textContent = "Erro: " + error.message;
+      return;
+    }
+    participantes = data || [];
+    document.getElementById("status").textContent = "";
+    renderTabela();
+  }
+
+  document.getElementById("btnAdd").onclick = async () => {
+    const nome = document.getElementById("nomeNovo").value.trim();
+    if (!nome) return;
+    await sb.from("participantes").insert({ nome });
+    document.getElementById("nomeNovo").value = "";
+    await carregar();
+  };
+
+  carregar();
+</script>
+</body>
+</html>
