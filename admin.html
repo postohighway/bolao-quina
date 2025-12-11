@@ -473,7 +473,7 @@
           btnPW.style.background = p.pagou_waldecir ? "#2e7d32" : "#eee";
           btnPW.style.color = p.pagou_waldecir ? "#fff" : "#000";
           btnPW.onclick = () =>
-            togglePago(p.id, "pagou_waldecir", !p.pagou_waldecir);
+            togglePago(p, "pagou_waldecir", !p.pagou_waldecir);
           tdPW.appendChild(btnPW);
 
           const tdPL = document.createElement("td");
@@ -484,7 +484,7 @@
           btnPL.style.background = p.pagou_loterica ? "#2e7d32" : "#eee";
           btnPL.style.color = p.pagou_loterica ? "#fff" : "#000";
           btnPL.onclick = () =>
-            togglePago(p.id, "pagou_loterica", !p.pagou_loterica);
+            togglePago(p, "pagou_loterica", !p.pagou_loterica);
           tdPL.appendChild(btnPL);
 
           const tdAcao = document.createElement("td");
@@ -492,7 +492,7 @@
           const btnDel = document.createElement("button");
           btnDel.textContent = "Excluir";
           btnDel.className = "small-btn btn-danger";
-          btnDel.onclick = () => excluirParticipante(p.id);
+          btnDel.onclick = () => excluirParticipante(p);  // <<< passa o objeto inteiro
           tdAcao.appendChild(btnDel);
 
           tr.appendChild(tdIdx);
@@ -505,12 +505,17 @@
         });
       }
 
-      async function togglePago(id, campo, valor) {
+      async function togglePago(p, campo, valor) {
         try {
+          // Detecta se usamos id ou uuid
+          const rowId = p.id ?? p.uuid;
+          const col = p.id ? "id" : "uuid";
+
           const { error } = await sb
             .from("participantes")
             .update({ [campo]: valor })
-            .eq("id", id);
+            .eq(col, rowId);
+
           if (error) throw error;
           await carregarParticipantes();
         } catch (err) {
@@ -518,13 +523,19 @@
         }
       }
 
-      async function excluirParticipante(id) {
+      async function excluirParticipante(p) {
         if (!confirm("Remover esse participante deste concurso?")) return;
+
         try {
+          // Se existir p.id usamos "id", senão usamos "uuid"
+          const rowId = p.id ?? p.uuid;
+          const col = p.id ? "id" : "uuid";
+
           const { error } = await sb
             .from("participantes")
             .delete()
-            .eq("id", id);
+            .eq(col, rowId);
+
           if (error) throw error;
           await carregarParticipantes();
         } catch (err) {
