@@ -4,646 +4,589 @@
   <meta charset="UTF-8" />
   <title>Bolão – Painel do Admin (Waldecir)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-  />
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
   <style>
     body {
-      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f3f3;
+      margin: 0;
+      padding: 0;
     }
+
     header {
-      background: #1d6f2c;
+      background: #1b5e20;
+      color: #fff;
+      padding: 14px 16px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 12px auto 32px;
+      padding: 0 10px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+
+    .card-label {
+      font-size: 13px;
+      color: #555;
+    }
+
+    .card-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    section {
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+
+    section h2 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    label {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    select,
+    input[type="text"],
+    input[type="number"],
+    input[type="date"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 8px;
+    }
+
+    .checkbox-row {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .checkbox-row input {
+      margin-right: 6px;
+    }
+
+    button {
+      border: none;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #1b5e20;
+      color: #fff;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-danger {
+      background: #c62828;
       color: #fff;
     }
-    header h1 {
-      font-size: 22px;
-      margin: 0;
-      padding: 10px 0;
-      text-align: center;
-    }
-    .card-resumo {
-      text-align: center;
-      font-weight: 600;
-    }
-    .card-resumo .numero {
-      font-size: 28px;
-    }
+
     .status-msg {
-      font-size: 14px;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .status-msg.ok {
+      color: #1b5e20;
+    }
+
+    .status-msg.err {
+      color: #c62828;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
       margin-top: 8px;
     }
-    .status-msg.ok {
-      color: #1d6f2c;
+
+    th,
+    td {
+      border-bottom: 1px solid #eee;
+      padding: 6px;
+      text-align: left;
     }
-    .status-msg.erro {
-      color: #c0392b;
+
+    th {
+      background: #ffe082;
+      font-size: 13px;
     }
-    .table thead {
-      position: sticky;
-      top: 0;
-      background: #ffb700;
+
+    tr:nth-child(even) td {
+      background: #fafafa;
     }
-    .btn-sm {
+
+    .td-center {
+      text-align: center;
+    }
+
+    .small-btn {
+      padding: 4px 8px;
       font-size: 12px;
-      padding: 2px 6px;
-    }
-    .badge-status {
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Bolão – Painel do Admin (Waldecir)</h1>
-  </header>
+<header>Bolão – Painel do Admin (Waldecir)</header>
 
-  <main class="container my-3">
+<div class="container">
 
-    <!-- RESUMO -->
-    <div class="row g-2 mb-3">
-      <div class="col-4">
-        <div class="card card-resumo">
-          <div class="card-body">
-            <div>Não entraram</div>
-            <div id="resumoNaoEntraram" class="numero">0</div>
-          </div>
-        </div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Não entraram:</div>
+      <div class="card-value" id="cardNaoEntraram">0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Pago Waldecir:</div>
+      <div class="card-value" id="cardPagoWaldecir">0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Pago Lotérica:</div>
+      <div class="card-value" id="cardPagoLoterica">0</div>
+    </div>
+  </div>
+
+  <!-- SELEÇÃO DE CONCURSO -->
+  <section>
+    <h2>Concurso</h2>
+
+    <label for="selectConcurso">Selecionar concurso</label>
+    <select id="selectConcurso">
+      <option>Carregando...</option>
+    </select>
+
+    <div style="margin-top: 6px; font-size: 13px;">
+      Concurso ativo: <strong id="textoConcursoAtivo">-</strong>
+    </div>
+
+    <div id="statusConcursos" class="status-msg err"></div>
+  </section>
+
+  <!-- CRIAR NOVO CONCURSO -->
+  <section>
+    <h2>Criar novo concurso</h2>
+
+    <div class="row">
+      <div>
+        <label for="novoNomeConcurso">Nome do concurso</label>
+        <input id="novoNomeConcurso" type="text" placeholder="Ex.: MEGA DA VIRADA" />
       </div>
-      <div class="col-4">
-        <div class="card card-resumo">
-          <div class="card-body">
-            <div>Pago Waldecir</div>
-            <div id="resumoPagoWaldecir" class="numero">0</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card card-resumo">
-          <div class="card-body">
-            <div>Pago Lotérica</div>
-            <div id="resumoPagoLoterica" class="numero">0</div>
-          </div>
-        </div>
+      <div>
+        <label for="novoNumeroConcurso">Número (opcional)</label>
+        <input id="novoNumeroConcurso" type="number" placeholder="Ex.: 3457" />
       </div>
     </div>
 
-    <!-- CONCURSO -->
-    <section class="mb-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Concurso</h5>
+    <div style="margin-top: 8px;">
+      <label for="novaDataConcurso">Data</label>
+      <input id="novaDataConcurso" type="date" />
+    </div>
 
-          <div class="row g-2 align-items-end">
-            <div class="col-8">
-              <label class="form-label">Selecionar concurso</label>
-              <select id="selectConcurso" class="form-select">
-                <option value="">Carregando…</option>
-              </select>
-            </div>
-            <div class="col-4">
-              <label class="form-label">Concurso ativo</label>
-              <div id="textoConcursoAtivo" class="fw-semibold">-</div>
-            </div>
-          </div>
+    <div class="checkbox-row">
+      <label>
+        <input type="checkbox" id="chkAtivo" checked />
+        Marcar este como concurso ativo
+      </label>
+      <label>
+        <input type="checkbox" id="chkClonar" checked />
+        Clonar participantes do último concurso ativo (se existir)
+      </label>
+    </div>
 
-          <div id="statusCarregando" class="status-msg"></div>
-          <div id="statusConcurso" class="status-msg"></div>
-        </div>
-      </div>
-    </section>
+    <button id="btnCriarConcurso" class="btn-primary">Criar concurso</button>
+    <div id="statusCriar" class="status-msg"></div>
+  </section>
 
-    <!-- CRIAR NOVO CONCURSO -->
-    <section class="mb-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Criar novo concurso</h5>
+  <!-- ADICIONAR PARTICIPANTE -->
+  <section>
+    <h2>Adicionar participante ao concurso selecionado</h2>
+    <label for="novoParticipanteNome">Nome do participante</label>
+    <input id="novoParticipanteNome" type="text" placeholder="Ex.: João da Silva" />
+    <button id="btnAddParticipante" class="btn-primary">Adicionar participante</button>
+    <div id="statusAddPart" class="status-msg"></div>
+  </section>
 
-          <form id="formNovoConcurso">
-            <div class="row g-2">
-              <div class="col-12">
-                <label class="form-label">Nome do concurso</label>
-                <input
-                  id="inputNomeConcurso"
-                  class="form-control"
-                  placeholder="Ex.: MEGA DA VIRADA"
-                  required
-                />
-              </div>
-              <div class="col-6">
-                <label class="form-label">Número (opcional)</label>
-                <input
-                  id="inputNumeroConcurso"
-                  class="form-control"
-                  placeholder="Ex.: 3457"
-                />
-              </div>
-              <div class="col-6">
-                <label class="form-label">Data</label>
-                <input
-                  type="date"
-                  id="inputDataConcurso"
-                  class="form-control"
-                  required
-                />
-              </div>
-            </div>
+  <!-- PARTICIPANTES DO CONCURSO SELECIONADO -->
+  <section>
+    <h2>Participantes do concurso selecionado</h2>
+    <div id="statusListaPart" class="status-msg"></div>
+    <table id="tabelaParticipantes">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Nome</th>
+        <th class="td-center">Pago Waldecir</th>
+        <th class="td-center">Pago Lotérica</th>
+        <th class="td-center">Ações</th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</div>
 
-            <div class="form-check mt-2">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="checkAtivo"
-                checked
-              />
-              <label class="form-check-label" for="checkAtivo">
-                Marcar este como concurso ativo
-              </label>
-            </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase;
 
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="checkClonar"
-                checked
-              />
-              <label class="form-check-label" for="checkClonar">
-                Clonar participantes do último concurso ativo (se existir)
-              </label>
-            </div>
+  const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
+  const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
+  const sb = createClient(supabaseUrl, supabaseKey);
 
-            <button class="btn btn-success mt-3" type="submit">
-              Criar concurso
-            </button>
-          </form>
+  let concursos = [];
+  let concursoSelecionadoId = null;
 
-          <div id="statusNovoConcurso" class="status-msg"></div>
-        </div>
-      </div>
-    </section>
+  const selectConcurso = document.getElementById("selectConcurso");
+  const textoConcursoAtivo = document.getElementById("textoConcursoAtivo");
+  const statusConcursos = document.getElementById("statusConcursos");
 
-    <!-- ADICIONAR PARTICIPANTE -->
-    <section class="mb-3">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Adicionar participante ao concurso selecionado</h5>
-          <form id="formNovoParticipante" class="row g-2">
-            <div class="col-8">
-              <label class="form-label">Nome do participante</label>
-              <input
-                id="inputNomeParticipante"
-                class="form-control"
-                placeholder="Ex.: João da Silva"
-                required
-              />
-            </div>
-            <div class="col-4 d-flex align-items-end">
-              <button class="btn btn-primary w-100" type="submit">
-                Adicionar
-              </button>
-            </div>
-          </form>
-          <div id="statusNovoParticipante" class="status-msg"></div>
-        </div>
-      </div>
-    </section>
+  const statusCriar = document.getElementById("statusCriar");
+  const statusAddPart = document.getElementById("statusAddPart");
+  const statusListaPart = document.getElementById("statusListaPart");
 
-    <!-- LISTA DE PARTICIPANTES -->
-    <section class="mb-5">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title mb-2">Participantes do concurso selecionado</h5>
+  const cardNaoEntraram = document.getElementById("cardNaoEntraram");
+  const cardPagoWaldecir = document.getElementById("cardPagoWaldecir");
+  const cardPagoLoterica = document.getElementById("cardPagoLoterica");
 
-          <div class="table-responsive" style="max-height: 60vh;">
-            <table class="table table-sm align-middle" id="tabelaParticipantes">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Nome</th>
-                  <th>Status</th>
-                  <th>Pago Waldecir</th>
-                  <th>Pago Lotérica</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- linhas via JS -->
-              </tbody>
-            </table>
-          </div>
+  function showMsg(el, msg, ok = false) {
+    el.textContent = msg;
+    el.className = "status-msg " + (ok ? "ok" : "err");
+    if (!msg) return;
+    setTimeout(() => { el.textContent = ""; }, 3000);
+  }
 
-          <div id="statusParticipantes" class="status-msg"></div>
-        </div>
-      </div>
-    </section>
+  async function carregarConcursos() {
+    try {
+      statusConcursos.textContent = "";
+      const { data, error } = await sb
+        .from("concursos")
+        .select("*")
+        .order("data", { ascending: false });
 
-  </main>
+      if (error) throw error;
 
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+      concursos = data || [];
+      selectConcurso.innerHTML = "";
 
-    // === CONFIG SUPABASE (MESMO EM TODAS AS TELAS) ===
-    const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
-    const supabaseKey =
-      "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    let concursos = [];
-    let participantes = [];
-    let concursoSelecionadoId = null;
-
-    const selectConcurso = document.getElementById("selectConcurso");
-    const textoConcursoAtivo = document.getElementById("textoConcursoAtivo");
-    const statusCarregando = document.getElementById("statusCarregando");
-    const statusConcurso = document.getElementById("statusConcurso");
-    const statusNovoConcurso = document.getElementById("statusNovoConcurso");
-    const statusNovoParticipante = document.getElementById(
-      "statusNovoParticipante"
-    );
-    const statusParticipantes = document.getElementById("statusParticipantes");
-
-    const resumoNaoEntraram = document.getElementById("resumoNaoEntraram");
-    const resumoPagoWaldecir = document.getElementById("resumoPagoWaldecir");
-    const resumoPagoLoterica = document.getElementById("resumoPagoLoterica");
-
-    const tabelaBody = document.querySelector(
-      "#tabelaParticipantes tbody"
-    );
-
-    function msg(el, texto, ok = true) {
-      el.textContent = texto || "";
-      el.className = "status-msg " + (texto ? (ok ? "ok" : "erro") : "");
-      if (texto) setTimeout(() => (el.textContent = ""), 3000);
-    }
-
-    // ===== CARREGAR CONCURSOS =====
-    async function carregarConcursos() {
-      try {
-        statusCarregando.textContent = "Carregando concursos…";
-        const { data, error } = await supabase
-          .from("concursos")
-          .select("*")
-          .order("data", { ascending: false });
-
-        if (error) throw error;
-        concursos = data || [];
-
-        selectConcurso.innerHTML = "";
-        if (!concursos.length) {
-          const opt = document.createElement("option");
-          opt.value = "";
-          opt.textContent = "Nenhum concurso cadastrado";
-          selectConcurso.appendChild(opt);
-          textoConcursoAtivo.textContent = "-";
-          statusCarregando.textContent = "";
-          return;
-        }
-
-        let indiceAtivo = concursos.findIndex((c) => c.ativo === true);
-        if (indiceAtivo === -1) indiceAtivo = 0;
-
-        concursos.forEach((c, i) => {
-          const opt = document.createElement("option");
-          const num = c.numero ? ` (${c.numero})` : "";
-          opt.value = c.id;
-          opt.textContent = `${c.nome}${num}`;
-          if (i === indiceAtivo) opt.selected = true;
-          selectConcurso.appendChild(opt);
-        });
-
-        const ativo = concursos[indiceAtivo];
-        concursoSelecionadoId = ativo.id;
-        textoConcursoAtivo.textContent =
-          ativo.nome + (ativo.numero ? ` (${ativo.numero})` : "");
-        statusCarregando.textContent = "";
-
-        await carregarParticipantes();
-      } catch (e) {
-        msg(
-          statusCarregando,
-          "Erro ao carregar concursos: " + e.message,
-          false
-        );
+      if (!concursos.length) {
+        const opt = document.createElement("option");
+        opt.textContent = "Nenhum concurso cadastrado";
+        opt.disabled = true;
+        opt.selected = true;
+        selectConcurso.appendChild(opt);
+        textoConcursoAtivo.textContent = "-";
+        concursoSelecionadoId = null;
+        atualizarCards([]);
+        renderTabelaParticipantes([]);
+        return;
       }
-    }
 
-    // ===== CARREGAR PARTICIPANTES DO CONCURSO SELECIONADO =====
-    async function carregarParticipantes() {
-      if (!concursoSelecionadoId) return;
-      try {
-        statusParticipantes.textContent = "Carregando participantes…";
-        const { data, error } = await supabase
-          .from("participantes")
-          .select("*")
-          .eq("concurso_id", concursoSelecionadoId)
-          .order("nome", { ascending: true });
-
-        if (error) throw error;
-        participantes = data || [];
-        desenharTabela();
-        atualizarResumo();
-        statusParticipantes.textContent = "";
-      } catch (e) {
-        msg(
-          statusParticipantes,
-          "Erro ao carregar participantes: " + e.message,
-          false
-        );
-      }
-    }
-
-    // ===== ATUALIZA RESUMO =====
-    function atualizarResumo() {
-      const naoEntraram = participantes.filter(
-        (p) => p.status !== "entrou"
-      ).length;
-      const pagoW = participantes.filter((p) => p.pagou_waldecir).length;
-      const pagoL = participantes.filter((p) => p.pagou_loterica).length;
-
-      resumoNaoEntraram.textContent = naoEntraram;
-      resumoPagoWaldecir.textContent = pagoW;
-      resumoPagoLoterica.textContent = pagoL;
-    }
-
-    // ===== DESENHAR TABELA =====
-    function desenharTabela() {
-      tabelaBody.innerHTML = "";
-      participantes.forEach((p, idx) => {
-        const tr = document.createElement("tr");
-
-        const tdIdx = document.createElement("td");
-        tdIdx.textContent = idx + 1;
-
-        const tdNome = document.createElement("td");
-        tdNome.textContent = p.nome;
-
-        const tdStatus = document.createElement("td");
-        const badge = document.createElement("span");
-        badge.className =
-          "badge rounded-pill text-bg-" +
-          (p.status === "entrou" ? "success" : "secondary") +
-          " badge-status";
-        badge.textContent = p.status === "entrou" ? "Entrou" : "Não entrou";
-        badge.title = "Toque para alternar";
-        badge.addEventListener("click", () =>
-          alternarStatus(p.id, p.status)
-        );
-        tdStatus.appendChild(badge);
-
-        const tdW = document.createElement("td");
-        const btnW = document.createElement("button");
-        btnW.className =
-          "btn btn-sm " + (p.pagou_waldecir ? "btn-success" : "btn-outline-success");
-        btnW.textContent = p.pagou_waldecir ? "Pago" : "Marcar pago";
-        btnW.addEventListener("click", () =>
-          marcarPago(p.id, "pagou_waldecir", !p.pagou_waldecir)
-        );
-        tdW.appendChild(btnW);
-
-        const tdL = document.createElement("td");
-        const btnL = document.createElement("button");
-        btnL.className =
-          "btn btn-sm " + (p.pagou_loterica ? "btn-success" : "btn-outline-success");
-        btnL.textContent = p.pagou_loterica ? "Pago" : "Marcar pago";
-        btnL.addEventListener("click", () =>
-          marcarPago(p.id, "pagou_loterica", !p.pagou_loterica)
-        );
-        tdL.appendChild(btnL);
-
-        const tdAcoes = document.createElement("td");
-        const btnDel = document.createElement("button");
-        btnDel.className = "btn btn-sm btn-outline-danger";
-        btnDel.textContent = "Excluir";
-        btnDel.addEventListener("click", () => excluirParticipante(p.id));
-        tdAcoes.appendChild(btnDel);
-
-        tr.appendChild(tdIdx);
-        tr.appendChild(tdNome);
-        tr.appendChild(tdStatus);
-        tr.appendChild(tdW);
-        tr.appendChild(tdL);
-        tr.appendChild(tdAcoes);
-
-        tabelaBody.appendChild(tr);
+      concursos.forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        const num = c.numero ? ` (${c.numero})` : "";
+        opt.textContent = `${c.nome}${num}`;
+        if (c.ativo) opt.textContent += " ⭐";
+        selectConcurso.appendChild(opt);
       });
-    }
 
-    // ===== ALTERAR STATUS (ENTROU / NÃO ENTROU) =====
-    async function alternarStatus(id, statusAtual) {
-      const novo = statusAtual === "entrou" ? "nao_entrou" : "entrou";
-      const { error } = await supabase
-        .from("participantes")
-        .update({ status: novo })
-        .eq("id", id);
-      if (error) {
-        msg(statusParticipantes, "Erro ao atualizar status: " + error.message, false);
-        return;
+      const ativo = concursos.find((c) => c.ativo);
+      if (ativo) {
+        selectConcurso.value = ativo.id;
+        textoConcursoAtivo.textContent =
+          ativo.numero ? `${ativo.nome} (${ativo.numero})` : ativo.nome;
+        concursoSelecionadoId = ativo.id;
+      } else {
+        selectConcurso.value = concursos[0].id;
+        concursoSelecionadoId = concursos[0].id;
+        textoConcursoAtivo.textContent = "-";
       }
-      const p = participantes.find((x) => x.id === id);
-      if (p) p.status = novo;
-      desenharTabela();
-      atualizarResumo();
+
+      await carregarParticipantes();
+    } catch (err) {
+      showMsg(statusConcursos, "Erro ao carregar concursos: " + err.message);
+    }
+  }
+
+  selectConcurso.addEventListener("change", async () => {
+    concursoSelecionadoId = selectConcurso.value || null;
+    await carregarParticipantes();
+  });
+
+  async function carregarParticipantes() {
+    if (!concursoSelecionadoId) {
+      renderTabelaParticipantes([]);
+      atualizarCards([]);
+      return;
     }
 
-    // ===== MARCAR PAGAMENTO =====
-    async function marcarPago(id, campo, valor) {
-      const patch = {};
-      patch[campo] = valor;
-      const { error } = await supabase
+    try {
+      statusListaPart.textContent = "";
+      const { data, error } = await sb
         .from("participantes")
-        .update(patch)
-        .eq("id", id);
-      if (error) {
-        msg(
-          statusParticipantes,
-          "Erro ao salvar pagamento: " + error.message,
-          false
-        );
-        return;
-      }
-      const p = participantes.find((x) => x.id === id);
-      if (p) p[campo] = valor;
-      desenharTabela();
-      atualizarResumo();
-    }
+        .select("*")
+        .eq("concurso_id", concursoSelecionadoId)
+        .order("nome", { ascending: true });
 
-    // ===== EXCLUIR PARTICIPANTE (APENAS DESTE CONCURSO) =====
-    async function excluirParticipante(id) {
-      if (!confirm("Excluir este participante deste concurso?")) return;
-      const { error } = await supabase
+      if (error) throw error;
+
+      const lista = data || [];
+      renderTabelaParticipantes(lista);
+      atualizarCards(lista);
+    } catch (err) {
+      showMsg(statusListaPart, "Erro ao carregar participantes: " + err.message);
+    }
+  }
+
+  function atualizarCards(lista) {
+    const total = lista.length;
+    const pagoW = lista.filter((p) => p.pagou_waldecir).length;
+    const pagoL = lista.filter((p) => p.pagou_loterica).length;
+    const naoEntraram = total - pagoW - pagoL;
+
+    cardNaoEntraram.textContent = naoEntraram;
+    cardPagoWaldecir.textContent = pagoW;
+    cardPagoLoterica.textContent = pagoL;
+  }
+
+  function renderTabelaParticipantes(lista) {
+    const tbody = document.querySelector("#tabelaParticipantes tbody");
+    tbody.innerHTML = "";
+    lista.forEach((p, idx) => {
+      const tr = document.createElement("tr");
+
+      const tdIdx = document.createElement("td");
+      tdIdx.textContent = idx + 1;
+
+      const tdNome = document.createElement("td");
+      tdNome.textContent = p.nome;
+
+      const tdPW = document.createElement("td");
+      tdPW.className = "td-center";
+      const btnPW = document.createElement("button");
+      btnPW.textContent = p.pagou_waldecir ? "Pago" : "Marcar";
+      btnPW.className = "small-btn";
+      btnPW.style.background = p.pagou_waldecir ? "#2e7d32" : "#eee";
+      btnPW.style.color = p.pagou_waldecir ? "#fff" : "#000";
+      btnPW.onclick = () =>
+        togglePago(p.id, "pagou_waldecir", !p.pagou_waldecir);
+      tdPW.appendChild(btnPW);
+
+      const tdPL = document.createElement("td");
+      tdPL.className = "td-center";
+      const btnPL = document.createElement("button");
+      btnPL.textContent = p.pagou_loterica ? "Pago" : "Marcar";
+      btnPL.className = "small-btn";
+      btnPL.style.background = p.pagou_loterica ? "#2e7d32" : "#eee";
+      btnPL.style.color = p.pagou_loterica ? "#fff" : "#000";
+      btnPL.onclick = () =>
+        togglePago(p.id, "pagou_loterica", !p.pagou_loterica);
+      tdPL.appendChild(btnPL);
+
+      const tdAcao = document.createElement("td");
+      tdAcao.className = "td-center";
+      const btnDel = document.createElement("button");
+      btnDel.textContent = "Excluir";
+      btnDel.className = "small-btn btn-danger";
+      btnDel.onclick = () => excluirParticipante(p.id);
+      tdAcao.appendChild(btnDel);
+
+      tr.appendChild(tdIdx);
+      tr.appendChild(tdNome);
+      tr.appendChild(tdPW);
+      tr.appendChild(tdPL);
+      tr.appendChild(tdAcao);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function togglePago(id, campo, valor) {
+    try {
+      const { error } = await sb
+        .from("participantes")
+        .update({ [campo]: valor })
+        .eq("id", id);
+      if (error) throw error;
+      await carregarParticipantes();
+    } catch (err) {
+      alert("Erro ao atualizar: " + err.message);
+    }
+  }
+
+  async function excluirParticipante(id) {
+    if (!confirm("Remover esse participante deste concurso?")) return;
+    try {
+      const { error } = await sb
         .from("participantes")
         .delete()
         .eq("id", id);
-      if (error) {
-        msg(
-          statusParticipantes,
-          "Erro ao excluir participante: " + error.message,
-          false
-        );
+      if (error) throw error;
+      await carregarParticipantes();
+    } catch (err) {
+      alert("Erro ao excluir participante: " + err.message);
+    }
+  }
+
+  document
+    .getElementById("btnCriarConcurso")
+    .addEventListener("click", async () => {
+      const nome = document.getElementById("novoNomeConcurso").value.trim();
+      const numero = document
+        .getElementById("novoNumeroConcurso")
+        .value.trim();
+      const data = document.getElementById("novaDataConcurso").value;
+      const marcarAtivo = document.getElementById("chkAtivo").checked;
+      const clonar = document.getElementById("chkClonar").checked;
+
+      if (!nome || !data) {
+        showMsg(statusCriar, "Informe nome e data do concurso.");
         return;
       }
-      participantes = participantes.filter((p) => p.id !== id);
-      desenharTabela();
-      atualizarResumo();
-    }
 
-    // ===== CRIAR NOVO CONCURSO =====
-    async function criarConcurso(event) {
-      event.preventDefault();
       try {
-        const nome = document.getElementById("inputNomeConcurso").value.trim();
-        const numero = document
-          .getElementById("inputNumeroConcurso")
-          .value.trim();
-        const data = document.getElementById("inputDataConcurso").value;
-        const ativo = document.getElementById("checkAtivo").checked;
-        const clonar = document.getElementById("checkClonar").checked;
+        showMsg(statusCriar, "Criando concurso...", true);
 
-        if (!nome || !data) {
-          msg(statusNovoConcurso, "Preencha nome e data.", false);
-          return;
+        if (marcarAtivo) {
+          await sb.from("concursos").update({ ativo: false }).eq("ativo", true);
         }
 
-        msg(statusNovoConcurso, "Criando concurso…", true);
+        const payload = {
+          nome,
+          data,
+          ativo: marcarAtivo,
+        };
+        if (numero) payload.numero = numero;
 
-        if (ativo) {
-          // desativar todos antes
-          await supabase.from("concursos").update({ ativo: false }).neq("id", 0);
-        }
-
-        const { data: novo, error } = await supabase
+        const { data: novo, error } = await sb
           .from("concursos")
-          .insert({
-            nome,
-            numero: numero || null,
-            data,
-            ativo,
-          })
+          .insert(payload)
           .select()
           .single();
 
         if (error) throw error;
 
-        // Clonar participantes do último concurso ativo (antes deste)
         if (clonar) {
-          const { data: ultimoAtivo, error: errAtivo } = await supabase
+          const { data: ultAtivo } = await sb
             .from("concursos")
-            .select("id, nome, numero")
-            .eq("ativo", true)
-            .neq("id", novo.id)
-            .order("data", { ascending: false })
+            .select("id")
+            .eq("ativo", false)
+            .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
 
-          if (!errAtivo && ultimoAtivo) {
-            const { data: partAntigos } = await supabase
+          if (ultAtivo && ultAtivo.id) {
+            const { data: lista, error: errLista } = await sb
               .from("participantes")
               .select("*")
-              .eq("concurso_id", ultimoAtivo.id);
+              .eq("concurso_id", ultAtivo.id);
+            if (errLista) throw errLista;
 
-            if (partAntigos && partAntigos.length) {
-              const copia = partAntigos.map((p) => ({
+            const clones =
+              (lista || []).map((p) => ({
                 nome: p.nome,
                 status: p.status || "nao_entrou",
                 pagou_waldecir: false,
                 pagou_loterica: false,
-                obs: p.obs || null,
-                concurso_nome: novo.nome,
-                concurso_numero: novo.numero || null,
+                obs: null,
                 concurso_id: novo.id,
-              }));
-              await supabase.from("participantes").insert(copia);
+              })) || [];
+
+            if (clones.length) {
+              const { error: errInsert } = await sb
+                .from("participantes")
+                .insert(clones);
+              if (errInsert) throw errInsert;
             }
           }
         }
 
-        msg(statusNovoConcurso, "Concurso criado com sucesso!", true);
-
-        document.getElementById("formNovoConcurso").reset();
-        document.getElementById("checkAtivo").checked = true;
-        document.getElementById("checkClonar").checked = true;
+        showMsg(statusCriar, "Concurso criado com sucesso!", true);
+        document.getElementById("novoNomeConcurso").value = "";
+        document.getElementById("novoNumeroConcurso").value = "";
+        document.getElementById("novaDataConcurso").value = "";
 
         await carregarConcursos();
-      } catch (e) {
-        msg(statusNovoConcurso, "Erro ao criar concurso: " + e.message, false);
+      } catch (err) {
+        showMsg(statusCriar, "Erro ao criar concurso: " + err.message);
       }
-    }
-
-    // ===== ADICIONAR PARTICIPANTE =====
-    async function adicionarParticipante(event) {
-      event.preventDefault();
-      if (!concursoSelecionadoId) {
-        msg(
-          statusNovoParticipante,
-          "Selecione um concurso antes de adicionar participante.",
-          false
-        );
-        return;
-      }
-      const nome = document
-        .getElementById("inputNomeParticipante")
-        .value.trim();
-      if (!nome) {
-        msg(statusNovoParticipante, "Informe o nome.", false);
-        return;
-      }
-      try {
-        msg(statusNovoParticipante, "Adicionando participante…", true);
-
-        const concurso = concursos.find((c) => c.id === concursoSelecionadoId);
-
-        const { data, error } = await supabase
-          .from("participantes")
-          .insert({
-            nome,
-            status: "nao_entrou",
-            pagou_waldecir: false,
-            pagou_loterica: false,
-            concurso_nome: concurso?.nome || null,
-            concurso_numero: concurso?.numero || null,
-            concurso_id: concursoSelecionadoId,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        participantes.push(data);
-        desenharTabela();
-        atualizarResumo();
-
-        document.getElementById("formNovoParticipante").reset();
-        msg(statusNovoParticipante, "Participante incluído!", true);
-      } catch (e) {
-        msg(
-          statusNovoParticipante,
-          "Erro ao adicionar participante: " + e.message,
-          false
-        );
-      }
-    }
-
-    // ===== EVENTOS =====
-    selectConcurso.addEventListener("change", async () => {
-      concursoSelecionadoId = selectConcurso.value || null;
-      const conc = concursos.find((c) => c.id === concursoSelecionadoId);
-      textoConcursoAtivo.textContent = conc
-        ? conc.nome + (conc.numero ? ` (${conc.numero})` : "")
-        : "-";
-      await carregarParticipantes();
     });
 
-    document
-      .getElementById("formNovoConcurso")
-      .addEventListener("submit", criarConcurso);
+  document
+    .getElementById("btnAddParticipante")
+    .addEventListener("click", async () => {
+      const nome = document
+        .getElementById("novoParticipanteNome")
+        .value.trim();
+      if (!concursoSelecionadoId) {
+        showMsg(statusAddPart, "Selecione um concurso primeiro.");
+        return;
+      }
+      if (!nome) {
+        showMsg(statusAddPart, "Informe o nome do participante.");
+        return;
+      }
 
-    document
-      .getElementById("formNovoParticipante")
-      .addEventListener("submit", adicionarParticipante);
+      try {
+        const { error } = await sb.from("participantes").insert({
+          nome,
+          status: "nao_entrou",
+          pagou_waldecir: false,
+          pagou_loterica: false,
+          obs: null,
+          concurso_id: concursoSelecionadoId,
+        });
 
-    // ===== INÍCIO =====
-    carregarConcursos();
-  </script>
+        if (error) throw error;
+        document.getElementById("novoParticipanteNome").value = "";
+        showMsg(statusAddPart, "Participante incluído!", true);
+        await carregarParticipantes();
+      } catch (err) {
+        showMsg(statusAddPart, "Erro ao incluir: " + err.message);
+      }
+    });
+
+  carregarConcursos();
+</script>
 </body>
 </html>
