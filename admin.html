@@ -86,11 +86,15 @@
       border-radius: 4px;
       border: none;
       font-size: 12px;
+      margin: 0 2px;
     }
     .btn-danger { background: #c62828; color: #fff; }
-    .btn-danger:active { opacity: .9; }
+    .btn-edit { background: #0277bd; color: #fff; }
+    .btn-danger:active,
+    .btn-edit:active { opacity: .9; }
     @media (max-width: 600px) {
       .card-value { font-size: 24px; }
+      thead th, tbody td { font-size: 13px; }
     }
   </style>
 </head>
@@ -183,7 +187,7 @@
             <th>Nome</th>
             <th class="td-center" style="width:110px;">Pago Waldecir</th>
             <th class="td-center" style="width:110px;">Pago Lotérica</th>
-            <th class="td-center" style="width:80px;">Ações</th>
+            <th class="td-center" style="width:140px;">Editar / Excluir</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -201,6 +205,7 @@
 
     let concursos = [];
     let concursoSelecionadoId = null;
+    let participantesAtual = [];
 
     const selectConcurso      = document.getElementById("selectConcurso");
     const textoConcursoAtivo  = document.getElementById("textoConcursoAtivo");
@@ -276,6 +281,7 @@
 
     async function carregarParticipantes() {
       if (!concursoSelecionadoId) {
+        participantesAtual = [];
         atualizarCards([]);
         renderTabelaParticipantes([]);
         return;
@@ -289,9 +295,9 @@
 
         if (error) throw error;
 
-        const lista = data || [];
-        renderTabelaParticipantes(lista);
-        atualizarCards(lista);
+        participantesAtual = data || [];
+        renderTabelaParticipantes(participantesAtual);
+        atualizarCards(participantesAtual);
       } catch (err) {
         msg(statusListaPart, "Erro ao carregar participantes: " + err.message);
       }
@@ -342,32 +348,42 @@
         btnPL.dataset.campo = "pagou_loterica";
         tdPL.appendChild(btnPL);
 
-        const tdAcao = document.createElement("td");
-        tdAcao.className = "td-center";
+        const tdAcoes = document.createElement("td");
+        tdAcoes.className = "td-center";
+
+        const btnEdit = document.createElement("button");
+        btnEdit.textContent = "Editar";
+        btnEdit.className = "small-btn btn-edit";
+        btnEdit.dataset.id = p.id;
+
         const btnDel = document.createElement("button");
         btnDel.textContent = "Excluir";
         btnDel.className = "small-btn btn-danger";
         btnDel.dataset.id = p.id;
-        tdAcao.appendChild(btnDel);
+
+        tdAcoes.appendChild(btnEdit);
+        tdAcoes.appendChild(btnDel);
 
         tr.appendChild(tdIdx);
         tr.appendChild(tdNome);
         tr.appendChild(tdPW);
         tr.appendChild(tdPL);
-        tr.appendChild(tdAcao);
+        tr.appendChild(tdAcoes);
         tbody.appendChild(tr);
       });
     }
 
-    // Delegação de eventos da tabela (um handler só)
-    document.querySelector("#tabelaParticipantes tbody")
+    // Clique na tabela (pago Waldecir, pago Lotérica, editar, excluir)
+    document
+      .querySelector("#tabelaParticipantes tbody")
       .addEventListener("click", async (e) => {
         const btn = e.target;
         if (!(btn instanceof HTMLButtonElement)) return;
 
-        // toggle pago
+        const id = btn.dataset.id;
+
+        // Toggle pago
         if (btn.dataset.campo) {
-          const id    = btn.dataset.id;
           const campo = btn.dataset.campo;
           const novoValor = btn.textContent === "Marcar";
           try {
@@ -383,11 +399,28 @@
           return;
         }
 
-        // excluir
-        if (btn.classList.contains("btn-danger")) {
-          const id = btn.dataset.id;
-          if (!confirm("Excluir da chamada deste concurso?")) return;
+        // Editar nome
+        if (btn.classList.contains("btn-edit")) {
+          const atual = participantesAtual.find(p => p.id === id);
+          const nomeAtual = atual ? atual.nome : "";
+          const novoNome = prompt("Editar nome do participante:", nomeAtual);
+          if (!novoNome || !novoNome.trim()) return;
+          try {
+            const { error } = await sb
+              .from("participantes")
+              .update({ nome: novoNome.trim() })
+              .eq("id", id);
+            if (error) throw error;
+            await carregarParticipantes();
+          } catch (err) {
+            alert("Erro ao editar: " + err.message);
+          }
+          return;
+        }
 
+        // Excluir
+        if (btn.classList.contains("btn-danger")) {
+          if (!confirm("Excluir este participante apenas deste concurso?")) return;
           try {
             const { error } = await sb
               .from("participantes")
