@@ -1,62 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bolão Quina</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bolão – Início</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    .container {
-      text-align: center;
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      max-width: 350px;
-      width: 90%;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      background: #ff9800;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .btn:hover {
-      background: #e68900;
-    }
+    :root { --verde:#2e7d32; --bg:#f4f6f8; }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg)}
+    header{background:var(--verde);color:#fff;padding:14px 16px;font-weight:800;text-align:center}
+    .wrap{max-width:720px;margin:18px auto;padding:0 14px}
+    .card{background:#fff;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:16px;margin:12px 0}
+    a.btn{display:block;text-decoration:none;background:#fff;border:2px solid var(--verde);color:#1b5e20;
+      padding:14px 12px;border-radius:12px;font-weight:800;text-align:center}
+    a.btn + a.btn{margin-top:10px}
+    .small{opacity:.75;font-size:13px;margin-top:8px;text-align:center}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Bolão Quina</h1>
-
-    <a class="btn" href="admin.html">Admin</a>
-    <a class="btn" href="loterica.html">Lotérica</a>
-    <a class="btn" href="lista.html">Lista Pública</a>
+  <header>Bolão – Painéis</header>
+  <div class="wrap">
+    <div class="card">
+      <a class="btn" href="./admin.html">Admin (Walde)</a>
+      <a class="btn" href="./loterica.html">Lotérica</a>
+      <a class="btn" href="./lista.html">Lista Pública</a>
+      <div class="small">Se aparecer “404”, confirme que os arquivos estão no repositório e o Pages aponta para <b>main / (root)</b>.</div>
+    </div>
   </div>
 </body>
 </html>
