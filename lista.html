@@ -1,129 +1,257 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Bolão – Lista Pública</title>
+  <meta charset="UTF-8" />
+  <title>Bolão – Lista de Participantes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root{--verde:#2e7d32;--bg:#f4f6f8;--borda:#e6e6e6;--laranja:#f4b400;--amarelo:#fff8c4}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg)}
-    header{background:var(--verde);color:#fff;padding:14px 16px;font-weight:800;text-align:center}
-    .wrap{max-width:820px;margin:14px auto;padding:0 12px}
-    .card{background:#fff;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:14px;margin:10px 0}
-    label{display:block;font-weight:800;margin:10px 0 6px}
-    select{width:100%;padding:12px;border:1px solid var(--borda);border-radius:10px;font-size:16px;background:#fff}
-    table{width:100%;border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden}
-    thead th{background:var(--laranja);padding:12px 10px;text-align:left;font-weight:900}
-    tbody td{padding:10px;border-bottom:1px solid #eee}
-    tbody tr:last-child td{border-bottom:0}
-    .linha-ok{background:#cdeed3}
-    .linha-pendente{background:var(--amarelo)}
-    .linha-nao-entrou{background:#fff}
-    .msg{margin-top:8px;font-weight:800}
-    .msg.err{color:#b71c1c}
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+    }
+    header {
+      background: #2e7d32;
+      color: #fff;
+      padding: 12px 16px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .card h3 { margin: 0 0 6px 0; font-size: 15px; }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+      font-weight: 500;
+    }
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .status-msg {
+      font-size: 12px;
+      margin-top: 4px;
+      color: #d32f2f;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    }
+    th, td {
+      padding: 6px 4px;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: left;
+    }
+    thead { background: #ffb300; }
+    th:nth-child(1), td:nth-child(1) {
+      width: 40px;
+      text-align: center;
+    }
+    th:nth-child(3), td:nth-child(3) {
+      text-align: center;
+    }
+    tr.pago { background: #c8e6c9 !important; }
+    tr.prometeu { background: #fff9c4 !important; }
+    tr.nao-entrou { background: #eeeeee !important; }
   </style>
 </head>
 <body>
-<header>Bolão – Lista Pública</header>
+  <header>Bolão – Lista de Participantes</header>
+  <div class="container">
+    <div class="card">
+      <h3>Concurso</h3>
+      <label for="selectConcurso">Selecionar concurso</label>
+      <select id="selectConcurso"></select>
+      <div class="status-msg" id="statusConcursos"></div>
+    </div>
 
-<div class="wrap">
-  <div class="card">
-    <label>Concurso</label>
-    <select id="selectConcurso"></select>
-    <div class="msg err" id="msg"></div>
+    <div class="card">
+      <h3>Participantes (somente leitura)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Waldecir</th>
+            <th>Lotérica</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyParticipantes"></tbody>
+      </table>
+      <div class="status-msg" id="statusParticipantes"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <table id="tabela">
-      <thead>
-        <tr><th style="width:50px">#</th><th>Nome</th><th style="width:140px">Status</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</div>
+  <script>
+    const { createClient } = supabase;
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://reudmuwpcldymuwkdszk.supabase.co";
-  const SUPABASE_KEY = "SUA_PUBLISHABLE_KEY_AQUI"; // sb_publishable_...
+    const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
+    const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
+    const sb = createClient(supabaseUrl, supabaseKey);
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let concursos = [];
+    let participantes = [];
+    let concursoSelecionadoId = null;
 
-  let concursos = [];
-  let concursoId = null;
+    const selectConcurso = document.getElementById("selectConcurso");
+    const statusConcursos = document.getElementById("statusConcursos");
+    const statusParticipantes = document.getElementById("statusParticipantes");
+    const tbodyParticipantes = document.getElementById("tbodyParticipantes");
 
-  const elSelect = document.getElementById("selectConcurso");
-  const msg = document.getElementById("msg");
+    function msg(el, texto) {
+      el.textContent = texto;
+      if (texto) {
+        setTimeout(() => {
+          if (el.textContent === texto) el.textContent = "";
+        }, 4000);
+      }
+    }
 
-  function setMsg(text){ msg.textContent = text || ""; }
+    function labelStatus(st) {
+      if (st === "pago") return "Pago";
+      if (st === "prometeu") return "Prometeu";
+      return "Não entrou";
+    }
 
-  async function carregarConcursos(){
-    try{
-      setMsg("");
-      elSelect.innerHTML = `<option value="">Carregando...</option>`;
-      const { data, error } = await sb.from("concursos")
-        .select("id,nome,ativo,criado_em")
-        .order("criado_em",{ascending:false});
-      if(error) throw error;
-      concursos = data||[];
-      if(!concursos.length){
-        elSelect.innerHTML = `<option value="">(nenhum concurso)</option>`;
+    function aplicarCorLinha(tr, p) {
+      tr.classList.remove("pago","prometeu","nao-entrou");
+      let status = p.status || "nao_entrou";
+      if (p.pagou_waldecir || p.pagou_loterica) status = "pago";
+      if (status === "pago") tr.classList.add("pago");
+      else if (status === "prometeu") tr.classList.add("prometeu");
+      else tr.classList.add("nao-entrou");
+    }
+
+    function renderParticipantes() {
+      tbodyParticipantes.innerHTML = "";
+      if (!participantes || participantes.length === 0) return;
+
+      const sorted = [...participantes].sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR"));
+      sorted.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        aplicarCorLinha(tr, p);
+
+        const tdIdx = document.createElement("td");
+        tdIdx.textContent = idx + 1;
+
+        const tdNome = document.createElement("td");
+        tdNome.textContent = p.nome;
+
+        const tdStatus = document.createElement("td");
+        tdStatus.style.textAlign = "center";
+        tdStatus.textContent = labelStatus(p.status);
+
+        const tdWal = document.createElement("td");
+        tdWal.style.textAlign = "center";
+        tdWal.textContent = p.pagou_waldecir ? "OK" : "-";
+
+        const tdLot = document.createElement("td");
+        tdLot.style.textAlign = "center";
+        tdLot.textContent = p.pagou_loterica ? "OK" : "-";
+
+        tr.appendChild(tdIdx);
+        tr.appendChild(tdNome);
+        tr.appendChild(tdStatus);
+        tr.appendChild(tdWal);
+        tr.appendChild(tdLot);
+        tbodyParticipantes.appendChild(tr);
+      });
+    }
+
+    async function carregarParticipantes(idConc) {
+      participantes = [];
+      tbodyParticipantes.innerHTML = "";
+      if (!idConc) return;
+      msg(statusParticipantes, "Carregando participantes...");
+      const { data, error } = await sb
+        .from("participantes")
+        .select("*")
+        .eq("concurso_id", idConc);
+
+      if (error) {
+        msg(statusParticipantes, "Erro ao carregar participantes: " + error.message);
         return;
       }
-      elSelect.innerHTML = `<option value="">Selecione...</option>` +
-        concursos.map(c=>`<option value="${c.id}">${c.nome||"Sem nome"}</option>`).join("");
-      const ativo = concursos.find(c=>c.ativo);
-      const first = ativo || concursos[0];
-      concursoId = first.id;
-      elSelect.value = concursoId;
-      await carregarParticipantes();
-    }catch(err){
-      setMsg("Erro: " + err.message);
-      elSelect.innerHTML = `<option value="">(erro)</option>`;
+      participantes = data || [];
+      msg(statusParticipantes, "");
+      renderParticipantes();
     }
-  }
 
-  async function carregarParticipantes(){
-    try{
-      setMsg("");
-      const tbody = document.querySelector("#tabela tbody");
-      tbody.innerHTML = "";
-      if(!concursoId) return;
+    async function carregarConcursos() {
+      msg(statusConcursos, "Carregando concursos...");
+      const { data, error } = await sb
+        .from("concursos")
+        .select("*")
+        .order("data", { ascending: false })
+        .order("created_at", { ascending: false });
 
-      const { data, error } = await sb.from("participantes")
-        .select("nome,status,pagou_waldecir,pagou_loterica")
-        .eq("concurso_id", concursoId)
-        .order("nome",{ascending:true});
-      if(error) throw error;
+      if (error) {
+        msg(statusConcursos, "Invalid API key ou erro: " + error.message);
+        return;
+      }
 
-      (data||[]).forEach((p, idx)=>{
-        const tr = document.createElement("tr");
-        if(p.pagou_waldecir || p.pagou_loterica) tr.classList.add("linha-ok");
-        else if((p.status||"N")==="Pe") tr.classList.add("linha-pendente");
-        else tr.classList.add("linha-nao-entrou");
+      concursos = data || [];
+      selectConcurso.innerHTML = "";
+      if (concursos.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Nenhum concurso cadastrado";
+        selectConcurso.appendChild(opt);
+        concursoSelecionadoId = null;
+        await carregarParticipantes(null);
+        msg(statusConcursos, "");
+        return;
+      }
 
-        const statusTxt = (p.pagou_waldecir || p.pagou_loterica) ? "Pago" : (p.status||"N");
-        tr.innerHTML = `<td>${idx+1}</td><td><b>${escapeHtml(p.nome||"")}</b></td><td>${escapeHtml(statusTxt)}</td>`;
-        tbody.appendChild(tr);
+      let ativo = concursos.find(c => c.ativo);
+      if (!ativo) ativo = concursos[0];
+
+      concursos.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        const numStr = c.numero ? ` #${c.numero}` : "";
+        opt.textContent = `${c.nome}${numStr} (${c.data || ""})`;
+        if (c.id === ativo.id) opt.selected = true;
+        selectConcurso.appendChild(opt);
       });
-    }catch(err){
-      setMsg("Erro: " + err.message);
+
+      concursoSelecionadoId = ativo.id;
+      msg(statusConcursos, "");
+      await carregarParticipantes(concursoSelecionadoId);
     }
-  }
 
-  elSelect.addEventListener("change", async ()=>{
-    concursoId = elSelect.value || null;
-    await carregarParticipantes();
-  });
+    selectConcurso.addEventListener("change", async () => {
+      concursoSelecionadoId = selectConcurso.value || null;
+      await carregarParticipantes(concursoSelecionadoId);
+    });
 
-  function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, s => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[s]));
-  }
-
-  carregarConcursos();
-</script>
+    document.addEventListener("DOMContentLoaded", () => {
+      carregarConcursos();
+    });
+  </script>
 </body>
 </html>
