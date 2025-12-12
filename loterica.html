@@ -1,261 +1,191 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bolão – Painel da Lotérica</title>
-
-  <style>
-    :root{
-      --green:#1f6f3a;
-      --header:#2f7d32;
-      --shadow:0 8px 24px rgba(0,0,0,.08);
-      --radius:14px;
-      --amber:#f5b301;
-      --yellow:#ffefb5;
-      --red:#ffe2e2;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial; background:linear-gradient(#eef2f7,#f6f7fb); color:#111}
-    .topbar{background:var(--header); color:#fff; padding:14px 18px; font-weight:900; text-align:center; position:sticky; top:0; z-index:10}
-    .wrap{max-width:1100px; margin:18px auto; padding:0 14px}
-    .panel{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow); padding:14px; margin-top:14px}
-    label{display:block;font-size:12px;color:#444;font-weight:800;margin:8px 0 6px}
-    input, select{width:100%; padding:10px 12px;border:1px solid #d8dbe2;border-radius:10px;background:#fff;outline:none; font-size:16px}
-    .row2{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end}
-    .btn{border:0; border-radius:12px; padding:12px 16px; font-weight:900; cursor:pointer}
-    .btn-green{background:var(--green); color:#fff}
-    .msg{margin-top:10px; padding:10px 12px; border-radius:12px; display:none}
-    .ok{background:#e8fff0;color:#0b5a22;border:1px solid #b7f3cb}
-    .err{background:#ffecec;color:#9b1c1c;border:1px solid #ffc2c2}
-    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:14px; margin-top:12px}
-    thead th{background:var(--amber); color:#111; font-weight:900; text-align:left; padding:12px}
-    tbody td{padding:10px 12px; border-bottom:1px solid #eee; vertical-align:middle}
-    tbody tr:last-child td{border-bottom:0}
-    tbody tr.prometeu{background:var(--yellow)}
-    tbody tr.pago{background:#e9f8ea}
-    tbody tr.nao_vai{background:var(--red)}
-    .pill{display:inline-block; min-width:44px; text-align:center; padding:8px 12px; border-radius:10px; font-weight:900}
-    .pill-ok{background:#2e8b57; color:#fff}
-    .pill-off{background:#e5e7eb; color:#111}
-    .hint{color:#666;font-size:12px}
-    @media(max-width:900px){ .row2{grid-template-columns:1fr;} }
-  </style>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--green:#1b5e20;--bg:#f3f5f7;--shadow:0 10px 30px rgba(0,0,0,.08);--r:16px}
+    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    header{background:var(--green);color:#fff;padding:16px 20px;font-weight:900;text-align:center;font-size:22px}
+    .wrap{max-width:1100px;margin:16px auto;padding:0 14px}
+    .card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px;margin-top:14px}
+    label{display:block;font-weight:800;margin:10px 0 6px}
+    input,select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;font-size:15px}
+    .btn{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+    .btn-green{background:var(--green);color:#fff}
+    .err{background:#ffe4e6;border:1px solid #fecdd3;color:#9f1239;padding:10px;border-radius:12px;margin-top:10px;font-weight:700}
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:14px;box-shadow:var(--shadow);background:#fff}
+    thead th{background:#f6b100;color:#111827;text-align:left;padding:12px;font-weight:900}
+    tbody td{padding:10px;border-top:1px solid #eef2f7;vertical-align:middle}
+    .pill{display:inline-block;padding:6px 10px;border-radius:10px;font-weight:900;font-size:13px}
+    .pill-ok{background:#1f7a2a;color:#fff}
+    .btn-sm{padding:8px 12px;border-radius:10px;font-weight:900}
+    .btn-gray{background:#6b7280;color:#fff}
+    .rowStatus-nao_entrou{background:#ffe7e7}
+    .rowStatus-Pe{background:#fff7cc}
+    .rowStatus-Pc{background:#e6f4ff}
+    .rowStatus-pago{background:#e7f7ea}
+  </style>
 </head>
-
 <body>
-  <div class="topbar">Bolão – Painel da Lotérica</div>
-  <div class="wrap">
+<header>Bolão – Painel da Lotérica</header>
 
-    <div class="panel">
-      <div class="row2">
-        <div>
-          <label>Selecionar concurso</label>
-          <select id="selectConcurso"></select>
-          <div class="hint">A lotérica só marca pagamento e inclui participante.</div>
-        </div>
-        <div style="min-width:220px">
-          <label>Total recebidos na Lotérica</label>
-          <input id="kpiL" disabled />
-        </div>
-      </div>
-
-      <div class="msg ok" id="msgOk"></div>
-      <div class="msg err" id="msgErr"></div>
-    </div>
-
-    <div class="panel">
-      <h2 style="margin:0 0 10px 0">Incluir participante (PIX na Lotérica)</h2>
-      <div class="row2">
-        <div>
-          <label>Nome do participante</label>
-          <input id="novoNome" placeholder="Ex.: João da Silva" />
-        </div>
-        <div style="align-self:end">
-          <button class="btn btn-green" id="btnAdd">Incluir</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2 style="margin:0 0 10px 0">Participantes</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:60px">#</th>
-            <th>Nome</th>
-            <th style="width:180px">Pago na Lotérica</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-
+<div class="wrap">
+  <div class="card">
+    <label>Selecionar concurso</label>
+    <select id="selConcurso"></select>
+    <div id="msg"></div>
   </div>
 
+  <div class="card">
+    <h2 style="margin:0 0 10px">Incluir participante (PIX na Lotérica)</h2>
+    <label>Nome do participante</label>
+    <div style="display:grid;grid-template-columns:1fr 180px;gap:12px">
+      <input id="addNome" placeholder="Ex.: João da Silva" />
+      <button class="btn btn-green" id="btnAdd">Incluir</button>
+    </div>
+  </div>
+
+  <div style="margin-top:14px">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:60px">#</th>
+          <th>Nome</th>
+          <th style="width:160px">Status</th>
+          <th style="width:160px">Pago na Lotérica</th>
+        </tr>
+      </thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+</div>
+
 <script>
-const SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
-const SUPABASE_KEY = "SUA_PUBLISHABLE_KEY_AQUI";
+  const SUPABASE_URL = "https://reudmuwpcldymuwkdszk.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false } });
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const $ = (id) => document.getElementById(id);
+  const msg = (text) => $("msg").innerHTML = `<div class="err">${text}</div>`;
+  const clearMsg = () => $("msg").innerHTML = "";
 
-const el = (id)=>document.getElementById(id);
-const selectConcurso = el("selectConcurso");
-const tbody = el("tbody");
-const msgOk = el("msgOk");
-const msgErr = el("msgErr");
-const kpiL = el("kpiL");
+  let concursoSelId = null;
+  let participantes = [];
 
-let concursos = [];
-let participantes = [];
-let concursoSelecionadoId = null;
+  function statusText(v){
+    switch(v){
+      case "nao_entrou": return "Não vai";
+      case "Pe": return "Prometeu";
+      case "Pc": return "Confirmado";
+      case "pago": return "Pago";
+      default: return "Prometeu";
+    }
+  }
 
-function showOk(t){ msgOk.textContent=t; msgOk.style.display="block"; msgErr.style.display="none"; }
-function showErr(t){ msgErr.textContent=t; msgErr.style.display="block"; msgOk.style.display="none"; }
-function clearMsg(){ msgOk.style.display="none"; msgErr.style.display="none"; }
-
-function normStatus(dbStatus){
-  const s = (dbStatus||"").toString().trim().toLowerCase();
-  if (s === "nao_entrou") return "nao_vai";
-  if (s === "pc" || s === "pe" || s === "prometeu") return "prometeu";
-  if (s === "pago" || s === "pagou") return "pago";
-  if (s === "nao_vai" || s === "não vai") return "nao_vai";
-  return "nao_vai";
-}
-function rowClass(c){
-  if (c==="nao_vai") return "nao_vai";
-  if (c==="prometeu") return "prometeu";
-  if (c==="pago") return "pago";
-  return "";
-}
-function escapeHtml(s){
-  return (s??"").toString()
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-}
-
-async function loadConcursos(){
-  clearMsg();
-  selectConcurso.innerHTML = `<option value="">Carregando...</option>`;
-  try{
+  async function loadConcursos(){
+    clearMsg();
+    $("selConcurso").innerHTML = `<option value="">Carregando...</option>`;
     const { data, error } = await sb.from("concursos").select("id,nome,numero,created_at").order("created_at",{ascending:false});
     if (error) throw error;
-    concursos = data||[];
-    if (!concursos.length){
-      selectConcurso.innerHTML = `<option value="">(sem concursos)</option>`;
+
+    if (!data?.length){
+      $("selConcurso").innerHTML = `<option value="">(sem concursos)</option>`;
+      concursoSelId = null;
       return;
     }
-    selectConcurso.innerHTML = concursos.map(c=>{
-      const n = c.numero ? ` (${c.numero})` : " ()";
-      return `<option value="${c.id}">${c.nome}${n}</option>`;
-    }).join("");
-    concursoSelecionadoId = concursos[0].id;
-    selectConcurso.value = concursoSelecionadoId;
-    await loadParticipantes();
-  }catch(e){
-    showErr("Erro ao carregar concursos: " + (e?.message||e));
-    selectConcurso.innerHTML = `<option value="">(erro)</option>`;
-  }
-}
+    if (!concursoSelId) concursoSelId = data[0].id;
 
-async function loadParticipantes(){
-  if (!concursoSelecionadoId){ participantes=[]; render(); return; }
-  clearMsg();
-  try{
+    $("selConcurso").innerHTML = data.map(c=>{
+      const label = `${c.nome}${c.numero ? " ("+c.numero+")" : ""}`;
+      return `<option value="${c.id}" ${c.id===concursoSelId?"selected":""}>${label}</option>`;
+    }).join("");
+
+    await loadParticipantes();
+  }
+
+  async function loadParticipantes(){
+    if (!concursoSelId){ $("tb").innerHTML=""; return; }
     const { data, error } = await sb
       .from("participantes")
-      .select("id,nome,status,pagou_loterica,concurso_id")
-      .eq("concurso_id", concursoSelecionadoId)
-      .order("nome",{ascending:true});
+      .select("id,nome,status,pagou_loterica,created_at,concurso_id")
+      .eq("concurso_id", concursoSelId)
+      .order("created_at",{ascending:true});
     if (error) throw error;
-    participantes = (data||[]).map(p=>({ ...p, status_canon: normStatus(p.status) }));
-    render();
-  }catch(e){
-    showErr("Erro ao carregar participantes: " + (e?.message||e));
-    participantes=[];
+    participantes = data || [];
     render();
   }
-}
 
-function render(){
-  const totalL = participantes.filter(p=>p.pagou_loterica===true).length;
-  kpiL.value = String(totalL);
+  function render(){
+    $("tb").innerHTML = participantes.map((p,i)=>{
+      const st = p.status || "Pe";
+      return `
+        <tr class="rowStatus-${st}">
+          <td style="font-weight:900">${i+1}</td>
+          <td style="font-weight:900">${(p.nome||"")}</td>
+          <td>${statusText(st)}</td>
+          <td>
+            ${p.pagou_loterica ? `<span class="pill pill-ok">Pago</span>` :
+              `<button class="btn-sm btn-gray" data-id="${p.id}">Marcar pago</button>`}
+          </td>
+        </tr>
+      `;
+    }).join("");
 
-  if (!participantes.length){
-    tbody.innerHTML = `<tr><td colspan="3" style="padding:16px;color:#666">Nenhum participante.</td></tr>`;
-    return;
+    document.querySelectorAll("button[data-id]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const id = b.getAttribute("data-id");
+        try{
+          clearMsg();
+          const { error } = await sb.from("participantes").update({ pagou_loterica:true }).eq("id", id);
+          if (error) throw error;
+          await loadParticipantes();
+        }catch(e){
+          msg("Erro ao marcar: " + (e?.message||e));
+        }
+      });
+    });
   }
 
-  tbody.innerHTML = participantes.map((p,i)=>{
-    const cls = rowClass(p.status_canon);
-    const btn = p.pagou_loterica
-      ? `<span class="pill pill-ok">Pago</span>`
-      : `<button class="btn btn-green" style="padding:10px 14px" data-act="pagar" data-id="${p.id}">Marcar pago</button>`;
-    return `
-      <tr class="${cls}">
-        <td>${i+1}</td>
-        <td style="font-weight:900">${escapeHtml(p.nome||"")}</td>
-        <td>${btn}</td>
-      </tr>
-    `;
-  }).join("");
-}
+  async function addParticipante(){
+    const nome = ($("addNome").value || "").trim();
+    if (!concursoSelId) return msg("Selecione um concurso.");
+    if (!nome) return msg("Informe o nome do participante.");
 
-selectConcurso.addEventListener("change", async ()=>{
-  concursoSelecionadoId = selectConcurso.value || null;
-  await loadParticipantes();
-});
-
-el("btnAdd").addEventListener("click", async ()=>{
-  clearMsg();
-  const nome = el("novoNome").value.trim();
-  if (!concursoSelecionadoId) return showErr("Selecione um concurso.");
-  if (!nome) return showErr("Digite o nome.");
-  try{
-    const payload = {
-      nome,
-      status: "prometeu",          // entrou via PIX -> normalmente “Prometeu”
-      pagou_waldecir: false,
-      pagou_loterica: true,        // já entrou pela lotérica
-      obs: "",
-      concurso_id: concursoSelecionadoId
-    };
-    const { error } = await sb.from("participantes").insert(payload);
-    if (error) throw error;
-    el("novoNome").value="";
-    showOk("Incluído e marcado como pago na Lotérica.");
-    await loadParticipantes();
-  }catch(e){
-    showErr("Erro ao incluir: " + (e?.message||e));
+    try{
+      clearMsg();
+      const row = {
+        concurso_id: concursoSelId,
+        nome,
+        status: "Pe",
+        pagou_waldecir: false,
+        pagou_loterica: true, // entrou via lotérica
+        obs: ""
+      };
+      const { error } = await sb.from("participantes").insert(row);
+      if (error) throw error;
+      $("addNome").value = "";
+      await loadParticipantes();
+    }catch(e){
+      msg("Erro ao incluir: " + (e?.message||e));
+    }
   }
-});
 
-tbody.addEventListener("click", async (ev)=>{
-  const b = ev.target.closest("[data-act]");
-  if (!b) return;
-  const act = b.getAttribute("data-act");
-  const id = b.getAttribute("data-id");
-  if (act !== "pagar") return;
-  try{
-    const { error } = await sb.from("participantes").update({ pagou_loterica:true }).eq("id", id);
-    if (error) throw error;
-    await loadParticipantes();
-  }catch(e){
-    showErr("Erro: " + (e?.message||e));
-  }
-});
-
-(async function init(){
-  if (!SUPABASE_URL.includes("supabase.co") || SUPABASE_KEY.length < 20){
-    showErr("Configure SUPABASE_URL e SUPABASE_KEY no topo do arquivo.");
-    selectConcurso.innerHTML = `<option value="">(configure URL/Key)</option>`;
-    return;
-  }
-  await loadConcursos();
-})();
+  (async function init(){
+    try{
+      $("selConcurso").addEventListener("change", async ()=>{
+        concursoSelId = $("selConcurso").value || null;
+        await loadParticipantes();
+      });
+      $("btnAdd").addEventListener("click", addParticipante);
+      await loadConcursos();
+    }catch(e){
+      msg("Erro ao carregar concursos: " + (e?.message || e) + "<br><br>Se aparecer <b>Failed to fetch</b>: confira URL e se a key é <b>sb_publishable_</b>.");
+      console.error(e);
+    }
+  })();
 </script>
 </body>
 </html>
