@@ -2,247 +2,410 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bolão – Painel da Lotérica</title>
 
   <style>
-    :root{--green:#2e7d32;--green2:#1b5e20;--orange:#f2b705;--line:#e5e7eb;--muted:#6b7280}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#f6f7fb}
-    header{background:var(--green);color:#fff;padding:14px 16px;font-weight:900;text-align:center;font-size:20px}
-    .wrap{max-width:900px;margin:16px auto;padding:0 12px}
-    .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:14px;margin-bottom:12px}
-    label{font-weight:800}
-    input,select,button{font:inherit;border:1px solid #cfd4dc;border-radius:10px;padding:10px 12px;background:#fff}
-    button{cursor:pointer;border:none;color:#fff;font-weight:900}
-    .btn-green{background:var(--green)}
-    .btn-green:hover{background:var(--green2)}
-    .btn-blue{background:#1976d2}
-    .btn-blue:hover{background:#155fb0}
-    .hint{color:var(--muted);font-size:13px;margin-top:6px}
-    .err{color:#b91c1c;font-weight:900;margin-top:8px}
-    .ok{color:#166534;font-weight:900;margin-top:8px}
-
-    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
-    thead th{background:var(--orange);padding:12px 10px;text-align:left;font-weight:900}
-    tbody td{padding:10px;border-bottom:1px solid var(--line)}
-    tbody tr:last-child td{border-bottom:none}
-    tr.st-nao_vai{background:#fde8e8}
-    tr.st-prometeu{background:#fff7d1}
-    tr.st-pagou{background:#e8f7ea}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:900;font-size:12px;border:1px solid rgba(0,0,0,.08)}
-    .pill-ok{background:var(--green);color:#fff}
-    .pill-no{background:#e5e7eb;color:#111}
-
-    @media (max-width:820px){
-      thead{display:none}
-      table,tbody,tr,td{display:block;width:100%}
-      tbody td{border:none;border-bottom:1px dashed #e5e7eb}
-      tbody td::before{content:attr(data-label);display:block;font-size:12px;color:var(--muted);font-weight:900;margin-bottom:4px}
-      tbody td:last-child{border-bottom:none}
+    :root{
+      --header:#145a2a;
+      --bg:#f3f5f7;
+      --card:#fff;
+      --shadow:0 2px 10px rgba(0,0,0,.08);
+      --radius:14px;
+      --line:#e7eaee;
+      --btn:#0d6efd;
+      --btn-ok:#198754;
+      --text:#1b1f24;
+      --muted:#6b7785;
+      --yellow:#fff3b0;
+      --green:#e7f6e9;
     }
+
+    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    header{
+      background:var(--header);
+      color:#fff;
+      padding:16px 14px;
+      font-weight:800;
+      text-align:center;
+      font-size:20px;
+      position:sticky; top:0; z-index:5;
+    }
+    .wrap{ max-width:900px; margin:16px auto 40px; padding:0 12px; }
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      border:1px solid var(--line);
+      margin-bottom:12px;
+    }
+    h2{ margin:0 0 10px; font-size:22px; }
+    label{ font-weight:700; font-size:14px; color:var(--muted); display:block; margin-bottom:6px; }
+    input, select{
+      width:100%;
+      box-sizing:border-box;
+      border:1px solid #cfd6de;
+      border-radius:10px;
+      padding:10px 12px;
+      font-size:16px;
+      background:#fff;
+      outline:none;
+    }
+    .row{ display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:end; }
+    .btn{
+      border:0;
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:800;
+      cursor:pointer;
+      background:var(--btn);
+      color:#fff;
+      font-size:15px;
+      white-space:nowrap;
+    }
+    .btn-ok{ background:var(--btn-ok); }
+    .btn-light{
+      background:#eef2f6;
+      color:#1b1f24;
+      border:1px solid #d9e1ea;
+    }
+    .msg{ margin-top:8px; font-weight:800; }
+    .msg.ok{ color:#0f7b3f; }
+    .msg.err{ color:#c62828; }
+
+    table{ width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:14px; background:#fff; border:1px solid var(--line); }
+    thead th{
+      background:#f6b000;
+      color:#1b1f24;
+      font-weight:900;
+      padding:10px;
+      text-align:left;
+      font-size:14px;
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+    tbody td{
+      padding:10px;
+      border-bottom:1px solid var(--line);
+      vertical-align:middle;
+      font-size:16px;
+    }
+    tbody tr:last-child td{ border-bottom:none; }
+    .col-num{ width:48px; text-align:center; font-weight:900; }
+
+    .st-pro{ background: var(--yellow); }
+    .st-pago{ background: var(--green); }
+    .st-nao{ background: #fff; }
   </style>
-
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
-<header>Bolão – Painel da Lotérica</header>
+  <header>Bolão – Painel da Lotérica</header>
 
-<div class="wrap">
-
-  <div class="card">
-    <label for="selectConcurso">Selecionar concurso</label><br/>
-    <select id="selectConcurso" style="width:100%"></select>
-    <div class="hint">Total recebidos na Lotérica: <b id="totalLoterica">0</b></div>
-    <div id="msgTop"></div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin:0 0 10px 0;">Incluir participante (PIX na Lotérica)</h3>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:220px;">
-        <label>Nome do participante</label><br/>
-        <input id="novoNome" placeholder="Ex.: João da Silva" style="width:100%" />
-        <div class="hint">Ao incluir aqui, já marca “Pago na Lotérica”.</div>
-      </div>
-      <div style="min-width:180px;align-self:flex-end;">
-        <button class="btn-blue" id="btnIncluir" style="width:100%">Incluir</button>
+  <div class="wrap">
+    <div class="card">
+      <h2>Concurso</h2>
+      <div class="row">
+        <div>
+          <label>Selecionar concurso</label>
+          <select id="selectConcurso"></select>
+          <div class="msg err" id="msgConcursos" style="display:none"></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:900; color:var(--muted);">Total recebidos na Lotérica</div>
+          <div style="font-size:34px; font-weight:900;" id="kpiLot">0</div>
+        </div>
       </div>
     </div>
-    <div id="msgIncluir"></div>
+
+    <div class="card">
+      <h2>Incluir participante (PIX na Lotérica)</h2>
+      <label>Nome do participante</label>
+      <div class="row">
+        <input id="novoNome" placeholder="Ex.: João da Silva" />
+        <button class="btn" id="btnIncluir">Incluir</button>
+      </div>
+      <div class="msg" id="msgIncluir"></div>
+    </div>
+
+    <div class="card">
+      <h2>Participantes</h2>
+      <div style="overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th>Nome</th>
+              <th>Pago na Lotérica</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="msg err" id="msgTabela" style="display:none"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3 style="margin:0 0 10px 0;">Participantes</h3>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:50px;">#</th>
-          <th>Nome</th>
-          <th style="width:140px;">Status</th>
-          <th style="width:160px;">Pago na Lotérica</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // =========================
+    // CONFIG (PREENCHA AQUI)
+    // =========================
+    const SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
+    const SUPABASE_ANON_KEY = "SUA_PUBLISHABLE_KEY_AQUI";
 
-</div>
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<script>
-  const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
-  const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
-  const sb = supabase.createClient(supabaseUrl, supabaseKey);
+    let concursoSelecionadoId = null;
+    let concursos = [];
+    let participantes = [];
+    let channelParticipantes = null;
+    let channelConcursos = null;
 
-  let concursos = [];
-  let concursoSelecionadoId = null;
+    function normalizeStatus(raw){
+      const v = (raw ?? "").toString().trim();
+      if (!v) return "nao_entrou";
+      if (v === "Pc" || v === "Pe") return "prometeu";
+      const low = v.toLowerCase();
+      if (low === "nao_entrou" || low === "nao entrou" || low === "não entrou") return "nao_entrou";
+      if (low === "prometeu") return "prometeu";
+      if (low === "pago" || low === "pagou") return "pago";
+      return "prometeu";
+    }
 
-  const elSelect = document.getElementById("selectConcurso");
-  const elTbody = document.getElementById("tbody");
-  const elMsgTop = document.getElementById("msgTop");
-  const elTotal = document.getElementById("totalLoterica");
-  const elMsgIncluir = document.getElementById("msgIncluir");
+    function rowClassByStatus(st){
+      if (st === "prometeu") return "st-pro";
+      if (st === "pago") return "st-pago";
+      return "st-nao";
+    }
 
-  function msg(el, texto, ok=false){
-    el.innerHTML = texto ? `<div class="${ok?'ok':'err'}">${texto}</div>` : "";
-  }
-  function rowClassByStatus(v){
-    if(v==="nao_vai") return "st-nao_vai";
-    if(v==="prometeu") return "st-prometeu";
-    if(v==="pagou") return "st-pagou";
-    return "";
-  }
-  function statusLabel(v){
-    if(v==="nao_vai") return "Não vai";
-    if(v==="prometeu") return "Prometeu";
-    if(v==="pagou") return "Pagou";
-    return "—";
-  }
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
+    function showMsg(el, text, ok=false){
+      el.style.display = "block";
+      el.className = "msg " + (ok ? "ok" : "err");
+      el.textContent = text || "";
+      if (!text) el.style.display = "none";
+    }
 
-  async function carregarConcursos(){
-    msg(elMsgTop,"");
-    elSelect.innerHTML = `<option value="">Carregando...</option>`;
-    try{
-      const { data, error } = await sb
+    async function loadConcursos(){
+      const msg = document.getElementById("msgConcursos");
+      showMsg(msg, "");
+
+      const { data, error } = await supabase
         .from("concursos")
-        .select("id,nome,numero,created_at")
+        .select("id,nome,numero,data,ativo")
+        .order("criado_em", { ascending:false })
         .order("created_at", { ascending:false });
 
-      if(error) throw error;
-      concursos = data || [];
-      if(!concursos.length){
-        elSelect.innerHTML = `<option value="">(Nenhum concurso)</option>`;
-        concursoSelecionadoId = null;
-        render([]);
+      if (error){
+        showMsg(msg, "Erro ao carregar concursos: " + error.message);
         return;
       }
 
-      elSelect.innerHTML = concursos.map(c=>{
-        const label = `${c.nome}${c.numero ? " ("+c.numero+")" : ""}`;
-        return `<option value="${c.id}">${label}</option>`;
-      }).join("");
+      concursos = data || [];
+      const sel = document.getElementById("selectConcurso");
+      sel.innerHTML = "";
 
-      concursoSelecionadoId = concursos[0].id;
-      elSelect.value = concursoSelecionadoId;
-      await carregarParticipantes();
-    }catch(e){
-      msg(elMsgTop, `Erro ao carregar concursos: ${e.message || e}`);
-      elSelect.innerHTML = `<option value="">(Erro)</option>`;
+      if (concursos.length === 0){
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Nenhum concurso";
+        sel.appendChild(opt);
+        concursoSelecionadoId = null;
+        await loadParticipantes();
+        return;
+      }
+
+      for (const c of concursos){
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        const num = (c.numero ?? "");
+        opt.textContent = num ? `${c.nome} (${num})` : `${c.nome} ()`;
+        sel.appendChild(opt);
+      }
+
+      if (!concursoSelecionadoId || !concursos.some(c => c.id === concursoSelecionadoId)){
+        concursoSelecionadoId = concursos[0].id;
+      }
+      sel.value = concursoSelecionadoId;
+
+      await loadParticipantes();
+      subscribeParticipantes(concursoSelecionadoId);
     }
-  }
 
-  async function carregarParticipantes(){
-    if(!concursoSelecionadoId){ render([]); return; }
-    try{
-      const { data, error } = await sb
+    async function loadParticipantes(){
+      const msg = document.getElementById("msgTabela");
+      showMsg(msg, "");
+
+      if (!concursoSelecionadoId){
+        participantes = [];
+        renderTabela();
+        renderKPI();
+        return;
+      }
+
+      const { data, error } = await supabase
         .from("participantes")
-        .select("id,nome,status,pagou_loterica")
+        .select("id,nome,status,pagou_loterica,concurso_id")
         .eq("concurso_id", concursoSelecionadoId)
-        .order("nome", { ascending:true });
+        .order("created_at", { ascending:true });
 
-      if(error) throw error;
-      const participantes = data || [];
-      const total = participantes.filter(p=>p.pagou_loterica===true).length;
-      elTotal.textContent = total;
-      render(participantes);
-    }catch(e){
-      msg(elMsgTop, `Erro ao carregar participantes: ${e.message || e}`);
-      render([]);
+      if (error){
+        showMsg(msg, "Erro ao carregar participantes: " + error.message);
+        participantes = [];
+        renderTabela();
+        renderKPI();
+        return;
+      }
+
+      participantes = (data || []).map(p => ({
+        ...p,
+        status: normalizeStatus(p.status),
+        pagou_loterica: !!p.pagou_loterica
+      }));
+
+      renderTabela();
+      renderKPI();
     }
-  }
 
-  function render(participantes){
-    elTbody.innerHTML = "";
-    participantes.forEach((p, idx)=>{
-      const tr = document.createElement("tr");
-      tr.className = rowClassByStatus(p.status);
-      tr.innerHTML = `
-        <td data-label="#">${idx+1}</td>
-        <td data-label="Nome" style="font-weight:900;">${escapeHtml(p.nome||"")}</td>
-        <td data-label="Status">${statusLabel(p.status)}</td>
-        <td data-label="Pago na Lotérica">
-          ${
-            p.pagou_loterica
-              ? `<span class="pill pill-ok">OK</span> <button class="btn-green" data-act="toggle" data-id="${p.id}" style="margin-left:8px;">Desmarcar</button>`
-              : `<span class="pill pill-no">—</span> <button class="btn-green" data-act="toggle" data-id="${p.id}" style="margin-left:8px;">Marcar pago</button>`
-          }
-        </td>
-      `;
-      elTbody.appendChild(tr);
-    });
+    function renderKPI(){
+      const lot = participantes.filter(p => !!p.pagou_loterica).length;
+      document.getElementById("kpiLot").textContent = lot;
+    }
 
-    elTbody.querySelectorAll("[data-act='toggle']").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        const id = btn.getAttribute("data-id");
-        const virarTrue = btn.textContent.includes("Marcar");
-        try{
-          const { error } = await sb.from("participantes").update({ pagou_loterica: virarTrue }).eq("id", id);
-          if(error) throw error;
-          await carregarParticipantes();
-        }catch(e){
-          alert(`Falha ao salvar: ${e.message || e}`);
-        }
+    function renderTabela(){
+      const tbody = document.getElementById("tbody");
+      tbody.innerHTML = "";
+
+      participantes.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = rowClassByStatus(normalizeStatus(p.status));
+
+        const tdN = document.createElement("td");
+        tdN.className = "col-num";
+        tdN.textContent = (idx+1);
+        tr.appendChild(tdN);
+
+        const tdNome = document.createElement("td");
+        tdNome.textContent = p.nome || "";
+        tr.appendChild(tdNome);
+
+        const tdPago = document.createElement("td");
+        tdPago.textContent = p.pagou_loterica ? "Pago" : "-";
+        tr.appendChild(tdPago);
+
+        const tdAc = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.className = "btn " + (p.pagou_loterica ? "btn-ok" : "btn-light");
+        btn.textContent = p.pagou_loterica ? "Pago" : "Marcar pago";
+        btn.addEventListener("click", async () => {
+          await updateParticipante(p.id, { pagou_loterica: !p.pagou_loterica });
+        });
+        tdAc.appendChild(btn);
+        tr.appendChild(tdAc);
+
+        tbody.appendChild(tr);
       });
-    });
-  }
+    }
 
-  async function incluirParticipante(){
-    msg(elMsgIncluir,"");
-    const nome = document.getElementById("novoNome").value.trim();
-    if(!concursoSelecionadoId){ msg(elMsgIncluir,"Selecione um concurso."); return; }
-    if(!nome){ msg(elMsgIncluir,"Digite um nome."); return; }
+    async function updateParticipante(id, patch){
+      const msg = document.getElementById("msgTabela");
+      showMsg(msg, "");
 
-    try{
+      const { error } = await supabase
+        .from("participantes")
+        .update(patch)
+        .eq("id", id);
+
+      if (error){
+        showMsg(msg, "Erro ao atualizar: " + error.message);
+        return;
+      }
+
+      await loadParticipantes();
+    }
+
+    async function incluirParticipante(){
+      const msg = document.getElementById("msgIncluir");
+      showMsg(msg, "");
+
+      if (!concursoSelecionadoId){
+        showMsg(msg, "Selecione um concurso primeiro.");
+        return;
+      }
+
+      const nome = document.getElementById("novoNome").value.trim();
+      if (!nome){
+        showMsg(msg, "Informe o nome do participante.");
+        return;
+      }
+
+      // PIX na lotérica: já entra como PROMETEU e pagou_loterica = true
       const payload = {
-        concurso_id: concursoSelecionadoId,
         nome,
         status: "prometeu",
-        pagou_waldecir: false,
         pagou_loterica: true,
-        obs: null
+        pagou_waldecir: false,
+        obs: "",
+        concurso_id: concursoSelecionadoId
       };
-      const { error } = await sb.from("participantes").insert(payload);
-      if(error) throw error;
 
-      msg(elMsgIncluir,"Incluído e marcado como pago na Lotérica!", true);
+      const { error } = await supabase
+        .from("participantes")
+        .insert(payload);
+
+      if (error){
+        showMsg(msg, "Erro ao incluir: " + error.message);
+        return;
+      }
+
+      showMsg(msg, "Participante incluído.", true);
       document.getElementById("novoNome").value = "";
-      await carregarParticipantes();
-    }catch(e){
-      msg(elMsgIncluir, `Erro ao incluir: ${e.message || e}`);
+      await loadParticipantes();
     }
-  }
 
-  elSelect.addEventListener("change", async ()=>{
-    concursoSelecionadoId = elSelect.value || null;
-    await carregarParticipantes();
-  });
+    function subscribeParticipantes(concursoId){
+      if (channelParticipantes){
+        supabase.removeChannel(channelParticipantes);
+        channelParticipantes = null;
+      }
+      if (!concursoId) return;
 
-  document.getElementById("btnIncluir").addEventListener("click", incluirParticipante);
+      channelParticipantes = supabase
+        .channel("rt-participantes-loterica-" + concursoId)
+        .on("postgres_changes",
+          { event:"*", schema:"public", table:"participantes", filter:`concurso_id=eq.${concursoId}` },
+          async () => { await loadParticipantes(); }
+        )
+        .subscribe();
+    }
 
-  carregarConcursos();
-</script>
+    function subscribeConcursos(){
+      if (channelConcursos){
+        supabase.removeChannel(channelConcursos);
+        channelConcursos = null;
+      }
+      channelConcursos = supabase
+        .channel("rt-concursos-loterica")
+        .on("postgres_changes",
+          { event:"*", schema:"public", table:"concursos" },
+          async () => { await loadConcursos(); }
+        )
+        .subscribe();
+    }
+
+    document.getElementById("selectConcurso").addEventListener("change", async (e) => {
+      concursoSelecionadoId = e.target.value || null;
+      await loadParticipantes();
+      subscribeParticipantes(concursoSelecionadoId);
+    });
+
+    document.getElementById("btnIncluir").addEventListener("click", incluirParticipante);
+
+    (async () => {
+      subscribeConcursos();
+      await loadConcursos();
+    })();
+  </script>
 </body>
 </html>
