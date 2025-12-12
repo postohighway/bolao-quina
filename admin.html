@@ -212,10 +212,10 @@
     const cardPagoWaldecir    = document.getElementById("cardPagoWaldecir");
     const cardPagoLoterica    = document.getElementById("cardPagoLoterica");
 
-    function showMsg(el, msg, ok=false) {
-      el.textContent = msg;
+    function msg(el, texto, ok=false) {
+      el.textContent = texto;
       el.className = "status-msg " + (ok ? "ok" : "err");
-      if (!msg) return;
+      if (!texto) return;
       setTimeout(() => { el.textContent = ""; }, 3000);
     }
 
@@ -265,7 +265,7 @@
 
         await carregarParticipantes();
       } catch (err) {
-        showMsg(statusConcursos, "Erro ao carregar concursos: " + err.message);
+        msg(statusConcursos, "Erro ao carregar concursos: " + err.message);
       }
     }
 
@@ -293,7 +293,7 @@
         renderTabelaParticipantes(lista);
         atualizarCards(lista);
       } catch (err) {
-        showMsg(statusListaPart, "Erro ao carregar participantes: " + err.message);
+        msg(statusListaPart, "Erro ao carregar participantes: " + err.message);
       }
     }
 
@@ -310,6 +310,7 @@
     function renderTabelaParticipantes(lista) {
       const tbody = document.querySelector("#tabelaParticipantes tbody");
       tbody.innerHTML = "";
+
       lista.forEach((p, idx) => {
         const tr = document.createElement("tr");
 
@@ -326,7 +327,8 @@
         btnPW.className = "small-btn";
         btnPW.style.background = p.pagou_waldecir ? "#2e7d32" : "#eee";
         btnPW.style.color = p.pagou_waldecir ? "#fff" : "#000";
-        btnPW.onclick = () => togglePago(p.id, "pagou_waldecir", !p.pagou_waldecir);
+        btnPW.dataset.id = p.id;
+        btnPW.dataset.campo = "pagou_waldecir";
         tdPW.appendChild(btnPW);
 
         const tdPL = document.createElement("td");
@@ -336,7 +338,8 @@
         btnPL.className = "small-btn";
         btnPL.style.background = p.pagou_loterica ? "#2e7d32" : "#eee";
         btnPL.style.color = p.pagou_loterica ? "#fff" : "#000";
-        btnPL.onclick = () => togglePago(p.id, "pagou_loterica", !p.pagou_loterica);
+        btnPL.dataset.id = p.id;
+        btnPL.dataset.campo = "pagou_loterica";
         tdPL.appendChild(btnPL);
 
         const tdAcao = document.createElement("td");
@@ -344,7 +347,7 @@
         const btnDel = document.createElement("button");
         btnDel.textContent = "Excluir";
         btnDel.className = "small-btn btn-danger";
-        btnDel.onclick = () => excluirParticipante(p.id);
+        btnDel.dataset.id = p.id;
         tdAcao.appendChild(btnDel);
 
         tr.appendChild(tdIdx);
@@ -356,33 +359,49 @@
       });
     }
 
-    async function togglePago(id, campo, valor) {
-      try {
-        const { error } = await sb
-          .from("participantes")
-          .update({ [campo]: valor })
-          .eq("id", id);
-        if (error) throw error;
-        await carregarParticipantes();
-      } catch (err) {
-        alert("Erro ao atualizar: " + err.message);
-      }
-    }
+    // Delegação de eventos da tabela (um handler só)
+    document.querySelector("#tabelaParticipantes tbody")
+      .addEventListener("click", async (e) => {
+        const btn = e.target;
+        if (!(btn instanceof HTMLButtonElement)) return;
 
-    async function excluirParticipante(id) {
-      if (!confirm("Remover esse participante deste concurso?")) return;
-      try {
-        const { error } = await sb
-          .from("participantes")
-          .delete()
-          .eq("id", id);
-        if (error) throw error;
-        await carregarParticipantes();
-      } catch (err) {
-        alert("Erro ao excluir: " + err.message);
-      }
-    }
+        // toggle pago
+        if (btn.dataset.campo) {
+          const id    = btn.dataset.id;
+          const campo = btn.dataset.campo;
+          const novoValor = btn.textContent === "Marcar";
+          try {
+            const { error } = await sb
+              .from("participantes")
+              .update({ [campo]: novoValor })
+              .eq("id", id);
+            if (error) throw error;
+            await carregarParticipantes();
+          } catch (err) {
+            alert("Erro ao atualizar: " + err.message);
+          }
+          return;
+        }
 
+        // excluir
+        if (btn.classList.contains("btn-danger")) {
+          const id = btn.dataset.id;
+          if (!confirm("Excluir da chamada deste concurso?")) return;
+
+          try {
+            const { error } = await sb
+              .from("participantes")
+              .delete()
+              .eq("id", id);
+            if (error) throw error;
+            await carregarParticipantes();
+          } catch (err) {
+            alert("Erro ao excluir: " + err.message);
+          }
+        }
+      });
+
+    // Criar concurso
     document.getElementById("btnCriarConcurso").addEventListener("click", async () => {
       const nome   = document.getElementById("novoNomeConcurso").value.trim();
       const numero = document.getElementById("novoNumeroConcurso").value.trim();
@@ -391,12 +410,12 @@
       const clonar      = document.getElementById("chkClonar").checked;
 
       if (!nome || !data) {
-        showMsg(statusCriar, "Informe nome e data do concurso.");
+        msg(statusCriar, "Informe nome e data do concurso.");
         return;
       }
 
       try {
-        showMsg(statusCriar, "Criando concurso...", true);
+        msg(statusCriar, "Criando concurso...", true);
 
         if (marcarAtivo) {
           await sb.from("concursos").update({ ativo: false }).eq("ativo", true);
@@ -437,25 +456,26 @@
           }
         }
 
-        showMsg(statusCriar, "Concurso criado com sucesso!", true);
+        msg(statusCriar, "Concurso criado com sucesso!", true);
         document.getElementById("novoNomeConcurso").value = "";
         document.getElementById("novoNumeroConcurso").value = "";
         document.getElementById("novaDataConcurso").value = "";
 
         await carregarConcursos();
       } catch (err) {
-        showMsg(statusCriar, "Erro ao criar concurso: " + err.message);
+        msg(statusCriar, "Erro ao criar concurso: " + err.message);
       }
     });
 
+    // Adicionar participante
     document.getElementById("btnAddParticipante").addEventListener("click", async () => {
       const nome = document.getElementById("novoParticipanteNome").value.trim();
       if (!concursoSelecionadoId) {
-        showMsg(statusAddPart, "Selecione um concurso primeiro.");
+        msg(statusAddPart, "Selecione um concurso primeiro.");
         return;
       }
       if (!nome) {
-        showMsg(statusAddPart, "Informe o nome do participante.");
+        msg(statusAddPart, "Informe o nome do participante.");
         return;
       }
       try {
@@ -469,10 +489,10 @@
         });
         if (error) throw error;
         document.getElementById("novoParticipanteNome").value = "";
-        showMsg(statusAddPart, "Participante incluído!", true);
+        msg(statusAddPart, "Participante incluído!", true);
         await carregarParticipantes();
       } catch (err) {
-        showMsg(statusAddPart, "Erro ao incluir: " + err.message);
+        msg(statusAddPart, "Erro ao incluir: " + err.message);
       }
     });
 

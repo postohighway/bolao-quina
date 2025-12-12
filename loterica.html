@@ -61,7 +61,6 @@
       border: none;
       font-size: 12px;
     }
-    .btn-danger { background: #c62828; color: #fff; }
     button { cursor: pointer; }
     .btn-main {
       width: 100%; margin-top: 8px; padding: 10px;
@@ -101,8 +100,7 @@
           <tr>
             <th style="width:40px;">#</th>
             <th>Nome</th>
-            <th class="td-center" style="width:110px;">Pago na Lotérica</th>
-            <th class="td-center" style="width:80px;">Ações</th>
+            <th class="td-center" style="width:130px;">Pago na Lotérica</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -135,10 +133,10 @@
     const statusLista     = document.getElementById("statusLista");
     const statusIncluir   = document.getElementById("statusIncluir");
 
-    function showMsg(el, msg, ok=false) {
-      el.textContent = msg;
+    function msg(el, texto, ok=false) {
+      el.textContent = texto;
       el.className = "status-msg " + (ok ? "ok" : "err");
-      if (!msg) return;
+      if (!texto) return;
       setTimeout(() => { el.textContent = ""; }, 3000);
     }
 
@@ -182,7 +180,7 @@
         concursoSelecionadoId = escolhido.id;
         await carregarParticipantes();
       } catch (err) {
-        showMsg(statusConcursos, "Erro ao carregar concursos: " + err.message);
+        msg(statusConcursos, "Erro ao carregar concursos: " + err.message);
       }
     }
 
@@ -208,7 +206,7 @@
         renderTabela(lista);
         atualizarTotal(lista);
       } catch (err) {
-        showMsg(statusLista, "Erro ao carregar participantes: " + err.message);
+        msg(statusLista, "Erro ao carregar participantes: " + err.message);
       }
     }
 
@@ -220,6 +218,7 @@
     function renderTabela(lista) {
       const tbody = document.querySelector("#tabelaParticipantes tbody");
       tbody.innerHTML = "";
+
       lista.forEach((p, idx) => {
         const tr = document.createElement("tr");
 
@@ -236,60 +235,46 @@
         btnPago.className = "small-btn";
         btnPago.style.background = p.pagou_loterica ? "#2e7d32" : "#eee";
         btnPago.style.color = p.pagou_loterica ? "#fff" : "#000";
-        btnPago.onclick = () => togglePagoLoterica(p.id, !p.pagou_loterica);
+        btnPago.dataset.id = p.id;
         tdPago.appendChild(btnPago);
-
-        const tdAcao = document.createElement("td");
-        tdAcao.className = "td-center";
-        const btnDel = document.createElement("button");
-        btnDel.textContent = "Excluir";
-        btnDel.className = "small-btn btn-danger";
-        btnDel.onclick = () => excluirParticipante(p.id);
-        tdAcao.appendChild(btnDel);
 
         tr.appendChild(tdIdx);
         tr.appendChild(tdNome);
         tr.appendChild(tdPago);
-        tr.appendChild(tdAcao);
         tbody.appendChild(tr);
       });
     }
 
-    async function togglePagoLoterica(id, valor) {
-      try {
-        const { error } = await sb
-          .from("participantes")
-          .update({ pagou_loterica: valor })
-          .eq("id", id);
-        if (error) throw error;
-        await carregarParticipantes();
-      } catch (err) {
-        alert("Erro ao atualizar: " + err.message);
-      }
-    }
+    document
+      .querySelector("#tabelaParticipantes tbody")
+      .addEventListener("click", async (e) => {
+        const btn = e.target;
+        if (!(btn instanceof HTMLButtonElement)) return;
+        if (!btn.dataset.id) return;
 
-    async function excluirParticipante(id) {
-      if (!confirm("Remover esse participante deste concurso?")) return;
-      try {
-        const { error } = await sb
-          .from("participantes")
-          .delete()
-          .eq("id", id);
-        if (error) throw error;
-        await carregarParticipantes();
-      } catch (err) {
-        alert("Erro ao excluir: " + err.message);
-      }
-    }
+        const id = btn.dataset.id;
+        const novoValor = btn.textContent === "Marcar pago";
+
+        try {
+          const { error } = await sb
+            .from("participantes")
+            .update({ pagou_loterica: novoValor })
+            .eq("id", id);
+          if (error) throw error;
+          await carregarParticipantes();
+        } catch (err) {
+          alert("Erro ao atualizar: " + err.message);
+        }
+      });
 
     document.getElementById("btnIncluir").addEventListener("click", async () => {
       const nome = document.getElementById("novoNome").value.trim();
       if (!concursoSelecionadoId) {
-        showMsg(statusIncluir, "Selecione um concurso primeiro.");
+        msg(statusIncluir, "Selecione um concurso primeiro.");
         return;
       }
       if (!nome) {
-        showMsg(statusIncluir, "Informe o nome do participante.");
+        msg(statusIncluir, "Informe o nome do participante.");
         return;
       }
       try {
@@ -297,16 +282,16 @@
           nome,
           status: "nao_entrou",
           pagou_waldecir: false,
-          pagou_loterica: true,   // já entrou com pix pago na lotérica
+          pagou_loterica: true,   // já entra pago na Lotérica
           obs: null,
           concurso_id: concursoSelecionadoId
         });
         if (error) throw error;
         document.getElementById("novoNome").value = "";
-        showMsg(statusIncluir, "Participante incluído!", true);
+        msg(statusIncluir, "Participante incluído!", true);
         await carregarParticipantes();
       } catch (err) {
-        showMsg(statusIncluir, "Erro ao incluir: " + err.message);
+        msg(statusIncluir, "Erro ao incluir: " + err.message);
       }
     });
 
