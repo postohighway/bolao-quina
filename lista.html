@@ -1,257 +1,91 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Bolão – Lista de Participantes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Bolão – Lista Pública</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
-    }
-    header {
-      background: #2e7d32;
-      color: #fff;
-      padding: 12px 16px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 18px;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 12px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.15);
-      padding: 10px 12px;
-      margin-bottom: 10px;
-    }
-    .card h3 { margin: 0 0 6px 0; font-size: 15px; }
-    label {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 3px;
-      font-weight: 500;
-    }
-    select {
-      width: 100%;
-      padding: 6px 8px;
-      font-size: 14px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    .status-msg {
-      font-size: 12px;
-      margin-top: 4px;
-      color: #d32f2f;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,.15);
-    }
-    th, td {
-      padding: 6px 4px;
-      border-bottom: 1px solid #e0e0e0;
-      text-align: left;
-    }
-    thead { background: #ffb300; }
-    th:nth-child(1), td:nth-child(1) {
-      width: 40px;
-      text-align: center;
-    }
-    th:nth-child(3), td:nth-child(3) {
-      text-align: center;
-    }
-    tr.pago { background: #c8e6c9 !important; }
-    tr.prometeu { background: #fff9c4 !important; }
-    tr.nao-entrou { background: #eeeeee !important; }
+    :root{--green:#2e7d32;--orange:#f2b705;--line:#e5e7eb;--muted:#6b7280}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#f6f7fb}
+    header{background:var(--green);color:#fff;padding:14px 16px;font-weight:900;text-align:center;font-size:20px}
+    .wrap{max-width:900px;margin:16px auto;padding:0 12px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:14px;margin-bottom:12px}
+    select{width:100%;font:inherit;border:1px solid #cfd4dc;border-radius:10px;padding:10px 12px;background:#fff}
+    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+    thead th{background:var(--orange);padding:12px 10px;text-align:left;font-weight:900}
+    tbody td{padding:10px;border-bottom:1px solid var(--line)}
+    tbody tr:last-child td{border-bottom:none}
+    .hint{color:var(--muted);font-size:13px;margin-top:6px}
   </style>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <header>Bolão – Lista de Participantes</header>
-  <div class="container">
-    <div class="card">
-      <h3>Concurso</h3>
-      <label for="selectConcurso">Selecionar concurso</label>
-      <select id="selectConcurso"></select>
-      <div class="status-msg" id="statusConcursos"></div>
-    </div>
+<header>Bolão – Lista Pública</header>
 
-    <div class="card">
-      <h3>Participantes (somente leitura)</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nome</th>
-            <th>Status</th>
-            <th>Waldecir</th>
-            <th>Lotérica</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyParticipantes"></tbody>
-      </table>
-      <div class="status-msg" id="statusParticipantes"></div>
-    </div>
+<div class="wrap">
+  <div class="card">
+    <label style="font-weight:900;">Concurso</label><br/>
+    <select id="selectConcurso"></select>
+    <div class="hint">Mostra apenas quem está marcado como “Pagou na Lotérica” ou “Pagou Waldecir”.</div>
   </div>
 
-  <script>
-    const { createClient } = supabase;
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th style="width:60px;">#</th><th>Nome</th><th style="width:180px;">Pago</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
 
-    const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
-    const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
-    const sb = createClient(supabaseUrl, supabaseKey);
+<script>
+  const supabaseUrl = "https://reudmuwpcldymuwkdszk.supabase.co";
+  const supabaseKey = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B";
+  const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let concursos = [];
-    let participantes = [];
-    let concursoSelecionadoId = null;
+  let concursoSelecionadoId = null;
+  const elSelect = document.getElementById("selectConcurso");
+  const elTbody = document.getElementById("tbody");
 
-    const selectConcurso = document.getElementById("selectConcurso");
-    const statusConcursos = document.getElementById("statusConcursos");
-    const statusParticipantes = document.getElementById("statusParticipantes");
-    const tbodyParticipantes = document.getElementById("tbodyParticipantes");
+  function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
-    function msg(el, texto) {
-      el.textContent = texto;
-      if (texto) {
-        setTimeout(() => {
-          if (el.textContent === texto) el.textContent = "";
-        }, 4000);
-      }
-    }
+  async function loadConcursos(){
+    const { data, error } = await sb.from("concursos").select("id,nome,numero,created_at").order("created_at",{ascending:false});
+    if(error){ elSelect.innerHTML = `<option>(erro)</option>`; return; }
+    const concursos = data||[];
+    elSelect.innerHTML = concursos.map(c=>{
+      const label = `${c.nome}${c.numero ? " ("+c.numero+")" : ""}`;
+      return `<option value="${c.id}">${label}</option>`;
+    }).join("");
+    concursoSelecionadoId = concursos[0]?.id || null;
+    elSelect.value = concursoSelecionadoId || "";
+    await loadLista();
+  }
 
-    function labelStatus(st) {
-      if (st === "pago") return "Pago";
-      if (st === "prometeu") return "Prometeu";
-      return "Não entrou";
-    }
+  async function loadLista(){
+    if(!concursoSelecionadoId){ elTbody.innerHTML=""; return; }
+    const { data, error } = await sb
+      .from("participantes")
+      .select("nome,pagou_waldecir,pagou_loterica")
+      .eq("concurso_id", concursoSelecionadoId)
+      .or("pagou_waldecir.eq.true,pagou_loterica.eq.true")
+      .order("nome",{ascending:true});
 
-    function aplicarCorLinha(tr, p) {
-      tr.classList.remove("pago","prometeu","nao-entrou");
-      let status = p.status || "nao_entrou";
-      if (p.pagou_waldecir || p.pagou_loterica) status = "pago";
-      if (status === "pago") tr.classList.add("pago");
-      else if (status === "prometeu") tr.classList.add("prometeu");
-      else tr.classList.add("nao-entrou");
-    }
+    if(error){ elTbody.innerHTML=""; return; }
+    const rows = data||[];
+    elTbody.innerHTML = rows.map((p,i)=>{
+      const pago = p.pagou_waldecir && p.pagou_loterica ? "Walde + Lotérica" : (p.pagou_loterica ? "Lotérica" : "Walde");
+      return `<tr><td>${i+1}</td><td style="font-weight:900">${esc(p.nome)}</td><td>${pago}</td></tr>`;
+    }).join("");
+  }
 
-    function renderParticipantes() {
-      tbodyParticipantes.innerHTML = "";
-      if (!participantes || participantes.length === 0) return;
+  elSelect.addEventListener("change", async ()=>{
+    concursoSelecionadoId = elSelect.value || null;
+    await loadLista();
+  });
 
-      const sorted = [...participantes].sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR"));
-      sorted.forEach((p, idx) => {
-        const tr = document.createElement("tr");
-        aplicarCorLinha(tr, p);
-
-        const tdIdx = document.createElement("td");
-        tdIdx.textContent = idx + 1;
-
-        const tdNome = document.createElement("td");
-        tdNome.textContent = p.nome;
-
-        const tdStatus = document.createElement("td");
-        tdStatus.style.textAlign = "center";
-        tdStatus.textContent = labelStatus(p.status);
-
-        const tdWal = document.createElement("td");
-        tdWal.style.textAlign = "center";
-        tdWal.textContent = p.pagou_waldecir ? "OK" : "-";
-
-        const tdLot = document.createElement("td");
-        tdLot.style.textAlign = "center";
-        tdLot.textContent = p.pagou_loterica ? "OK" : "-";
-
-        tr.appendChild(tdIdx);
-        tr.appendChild(tdNome);
-        tr.appendChild(tdStatus);
-        tr.appendChild(tdWal);
-        tr.appendChild(tdLot);
-        tbodyParticipantes.appendChild(tr);
-      });
-    }
-
-    async function carregarParticipantes(idConc) {
-      participantes = [];
-      tbodyParticipantes.innerHTML = "";
-      if (!idConc) return;
-      msg(statusParticipantes, "Carregando participantes...");
-      const { data, error } = await sb
-        .from("participantes")
-        .select("*")
-        .eq("concurso_id", idConc);
-
-      if (error) {
-        msg(statusParticipantes, "Erro ao carregar participantes: " + error.message);
-        return;
-      }
-      participantes = data || [];
-      msg(statusParticipantes, "");
-      renderParticipantes();
-    }
-
-    async function carregarConcursos() {
-      msg(statusConcursos, "Carregando concursos...");
-      const { data, error } = await sb
-        .from("concursos")
-        .select("*")
-        .order("data", { ascending: false })
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        msg(statusConcursos, "Invalid API key ou erro: " + error.message);
-        return;
-      }
-
-      concursos = data || [];
-      selectConcurso.innerHTML = "";
-      if (concursos.length === 0) {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "Nenhum concurso cadastrado";
-        selectConcurso.appendChild(opt);
-        concursoSelecionadoId = null;
-        await carregarParticipantes(null);
-        msg(statusConcursos, "");
-        return;
-      }
-
-      let ativo = concursos.find(c => c.ativo);
-      if (!ativo) ativo = concursos[0];
-
-      concursos.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        const numStr = c.numero ? ` #${c.numero}` : "";
-        opt.textContent = `${c.nome}${numStr} (${c.data || ""})`;
-        if (c.id === ativo.id) opt.selected = true;
-        selectConcurso.appendChild(opt);
-      });
-
-      concursoSelecionadoId = ativo.id;
-      msg(statusConcursos, "");
-      await carregarParticipantes(concursoSelecionadoId);
-    }
-
-    selectConcurso.addEventListener("change", async () => {
-      concursoSelecionadoId = selectConcurso.value || null;
-      await carregarParticipantes(concursoSelecionadoId);
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      carregarConcursos();
-    });
-  </script>
+  loadConcursos();
+</script>
 </body>
 </html>

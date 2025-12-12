@@ -1,62 +1,30 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bolão Quina</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Bolão – Início</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    .container {
-      text-align: center;
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      max-width: 350px;
-      width: 90%;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      background: #ff9800;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .btn:hover {
-      background: #e68900;
-    }
+    :root{--green:#2e7d32;--line:#e5e7eb}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#f6f7fb}
+    header{background:var(--green);color:#fff;padding:14px 16px;font-weight:900;text-align:center;font-size:20px}
+    .wrap{max-width:700px;margin:16px auto;padding:0 12px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:14px;margin-bottom:12px}
+    a{display:block;padding:14px 12px;border-radius:12px;border:1px solid var(--line);text-decoration:none;color:#111;font-weight:900;margin-top:10px;background:#fff}
+    a:hover{background:#f3f4f6}
+    .hint{opacity:.7;font-size:13px;margin-top:6px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Bolão Quina</h1>
-
-    <a class="btn" href="admin.html">Admin</a>
-    <a class="btn" href="loterica.html">Lotérica</a>
-    <a class="btn" href="lista.html">Lista Pública</a>
+<header>Bolão – Início</header>
+<div class="wrap">
+  <div class="card">
+    <div style="font-weight:900;font-size:18px;">Acessos</div>
+    <a href="admin.html">Admin (Walde)</a>
+    <a href="loterica.html">Lotérica</a>
+    <a href="lista.html">Lista Pública</a>
+    <div class="hint">Dica iPhone: abra no Safari e use “Compartilhar → Adicionar à Tela de Início”.</div>
   </div>
+</div>
 </body>
 </html>
