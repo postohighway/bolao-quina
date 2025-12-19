@@ -4,64 +4,63 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bolão – Painel do Admin (Walde)</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
-      --green:#2e7d32;
-      --green2:#1b5e20;
-      --card:#ffffff;
-      --bg:#f3f5f7;
-      --muted:#6b7280;
-      --shadow:0 10px 30px rgba(0,0,0,.08);
-      --radius:16px;
+      --green:#2e7d32; --green2:#1b5e20;
+      --bg:#f3f5f7; --card:#ffffff; --line:#e6eaef;
+      --warn:#fff3cd; --warn-border:#ffecb5;
+      --danger:#f8d7da; --danger-border:#f5c2c7;
+      --ok:#d1e7dd; --ok-border:#badbcc;
+      --hdr:#f6b400;
+      --blue:#1976d2; --red:#c62828; --gray:#6b7280;
     }
     body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    header{background:var(--green2);color:#fff;padding:16px 20px;font-weight:800;text-align:center;font-size:22px}
-    .wrap{max-width:1200px;margin:16px auto;padding:0 14px}
-    .row{display:flex;gap:14px;flex-wrap:wrap}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
-    .kpi{flex:1;min-width:220px}
-    .kpi .t{color:#111827;font-weight:800;font-size:18px}
-    .kpi .n{font-size:44px;font-weight:900;margin-top:4px}
-    .kpi .s{color:var(--muted);font-size:13px;margin-top:4px}
-    h2{margin:18px 0 10px}
-    label{display:block;font-weight:700;margin:10px 0 6px}
-    input,select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;background:#fff}
+    header{background:var(--green);color:#fff;padding:16px 12px;font-weight:800;text-align:center;font-size:20px}
+    .wrap{max-width:1180px;margin:14px auto;padding:0 12px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:14px}
+    .mini{flex:1;min-width:220px}
+    .mini h4{margin:0 0 6px 0;color:#111;font-size:14px;font-weight:800}
+    .mini .num{font-size:44px;font-weight:900;line-height:1}
+    .mini small{color:var(--gray)}
+    .section{margin-top:12px}
+    .section h3{margin:0 0 10px 0}
+    label{font-weight:700;font-size:13px}
+    input,select{width:100%;padding:12px 12px;border:1px solid #d7dde6;border-radius:10px;font-size:16px;background:#fff}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
-    .btn{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
-    .btn-green{background:var(--green2);color:#fff}
-    .btn-gray{background:#6b7280;color:#fff}
-    .btn-blue{background:#1976d2;color:#fff}
-    .btn-red{background:#d32f2f;color:#fff}
-    .btn-sm{padding:8px 12px;border-radius:10px;font-weight:800}
-    .muted{color:var(--muted);font-size:13px}
-    .err{background:#ffe4e6;border:1px solid #fecdd3;color:#9f1239;padding:10px;border-radius:12px;margin-top:10px;font-weight:700}
-    .ok{background:#dcfce7;border:1px solid #86efac;color:#14532d;padding:10px;border-radius:12px;margin-top:10px;font-weight:700}
-    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:14px;box-shadow:var(--shadow);background:#fff}
-    thead th{background:#f6b100;color:#111827;text-align:left;padding:12px;font-weight:900}
-    tbody td{padding:10px;border-top:1px solid #eef2f7;vertical-align:middle}
-    tbody tr:nth-child(even){background:#f8fbff}
-    .name{font-weight:900}
-    .sub{color:var(--muted);font-size:12px;margin-top:2px}
-    .pill{display:inline-block;padding:6px 10px;border-radius:10px;font-weight:900;font-size:13px}
-    .pill-ok{background:#1f7a2a;color:#fff}
-    .pill-no{background:#e5e7eb;color:#111827}
-    .obs{width:80px;text-align:center}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .rowStatus-nao_entrou{background:#ffe7e7 !important}
-    .rowStatus-Pe{background:#fff7cc !important}
-    .rowStatus-Pc{background:#e6f4ff !important}
-    .rowStatus-pago{background:#e7f7ea !important}
-    @media (max-width:900px){
+    .btn{cursor:pointer;border:0;border-radius:12px;padding:12px 14px;font-weight:900;font-size:16px}
+    .btn.green{background:var(--green);color:#fff}
+    .btn.green:hover{background:var(--green2)}
+    .btn.gray{background:#616b7a;color:#fff}
+    .btn.blue{background:var(--blue);color:#fff}
+    .btn.red{background:var(--red);color:#fff}
+    .btn.sm{padding:8px 12px;border-radius:10px;font-size:14px}
+    .muted{color:var(--gray);font-size:13px}
+    .err{background:var(--danger);border:1px solid var(--danger-border);color:#842029;padding:10px;border-radius:12px;margin-top:10px;white-space:pre-wrap}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    thead th{background:var(--hdr);color:#111;padding:12px 10px;font-weight:900;text-align:left}
+    thead th:first-child{border-top-left-radius:14px}
+    thead th:last-child{border-top-right-radius:14px}
+    tbody td{background:#fff;border-bottom:1px solid var(--line);padding:10px 10px;vertical-align:middle}
+    tbody tr:nth-child(even) td{background:#f7fbf7}
+    .pill{display:inline-block;padding:7px 12px;border-radius:10px;font-weight:900}
+    .pill.ok{background:var(--green);color:#fff}
+    .pill.no{background:#cfd8dc;color:#111}
+    .tag{font-size:12px;color:var(--gray)}
+    .statusRow-nao_entrou td{background:#fdecee !important}
+    .statusRow-prometeu td{background:#fff6d6 !important}
+    .statusRow-pago td{background:#e8f6ed !important}
+    .flash{outline:3px solid #ff9800; outline-offset:-3px}
+    .searchBox{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    .results{margin-top:10px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+    .resItem{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--line)}
+    .resItem:first-child{border-top:0}
+    .resName{font-weight:900}
+    .resMeta{font-size:12px;color:var(--gray)}
+    @media (max-width:860px){
       .grid2,.grid3{grid-template-columns:1fr}
-      .actions{justify-content:flex-start}
-      thead{display:none}
-      table,tbody,tr,td{display:block;width:100%}
-      tbody td{border-top:0;border-bottom:1px solid #eef2f7}
-      tbody tr{margin-bottom:10px;border-radius:14px;overflow:hidden}
-      tbody td::before{content:attr(data-label);display:block;font-weight:900;color:#111827;margin-bottom:4px}
-      .obs{width:100%}
+      header{font-size:18px}
     }
   </style>
 </head>
@@ -69,488 +68,606 @@
 <header>Bolão – Painel do Admin (Walde)</header>
 
 <div class="wrap">
+
   <div class="row">
-    <div class="card kpi">
-      <div class="t">Não vai</div>
-      <div class="n" id="kpiNaoVai">0</div>
-      <div class="s">status = “nao_entrou” (no concurso selecionado)</div>
+    <div class="card mini">
+      <h4>Não vai</h4>
+      <div class="num" id="kpiNaoVai">0</div>
+      <small class="muted">status = “Não vai” (no concurso selecionado)</small>
     </div>
-    <div class="card kpi">
-      <div class="t">Pago Waldecir</div>
-      <div class="n" id="kpiWalde">0</div>
-      <div class="s">pagou_waldecir = TRUE</div>
+    <div class="card mini">
+      <h4>Pago Waldecir</h4>
+      <div class="num" id="kpiWalde">0</div>
+      <small class="muted">pagou_waldecir = TRUE</small>
     </div>
-    <div class="card kpi">
-      <div class="t">Pago Lotérica</div>
-      <div class="n" id="kpiLoterica">0</div>
-      <div class="s">pagou_loterica = TRUE</div>
+    <div class="card mini">
+      <h4>Pago Lotérica</h4>
+      <div class="num" id="kpiLoterica">0</div>
+      <small class="muted">pagou_loterica = TRUE</small>
     </div>
   </div>
 
-  <div class="card" style="margin-top:14px">
+  <div class="card section">
     <div class="grid2">
       <div>
         <label>Selecionar concurso</label>
-        <select id="selConcurso"></select>
-        <div class="muted" style="margin-top:6px">
-          Se ficar “Carregando...”: URL/chave errada, bloqueio de rede, ou RLS/policies não permitindo SELECT.
-        </div>
+        <select id="selectConcurso">
+          <option value="">Carregando...</option>
+        </select>
+        <div class="muted">Se ficar “Carregando…”: URL/chave errada, bloqueio de rede, ou projeto pausado.</div>
       </div>
       <div>
         <label>Concurso ativo</label>
-        <input id="inpAtivo" disabled placeholder="—" />
-        <div class="muted" style="margin-top:6px">Mostra o concurso com <b>ativo = TRUE</b></div>
+        <input id="concursoAtivo" disabled value="—" />
+        <div class="muted">Mostra o concurso com ativo = TRUE</div>
       </div>
     </div>
-    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-      <button class="btn btn-gray" id="btnReload">Recarregar</button>
+    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn gray" id="btnReload">Recarregar</button>
     </div>
-    <div id="msg"></div>
+    <div id="errBox" class="err" style="display:none"></div>
   </div>
 
-  <div class="card" style="margin-top:14px">
-    <h2 style="margin-top:0">Criar novo concurso</h2>
+  <div class="card section">
+    <h3>Criar novo concurso</h3>
     <div class="grid3">
       <div>
         <label>Nome do concurso</label>
-        <input id="newNome" placeholder="Ex.: MEGA DA VIRADA" />
+        <input id="novoNome" placeholder="Ex.: MEGA DA VIRADA" />
       </div>
       <div>
         <label>Número (opcional)</label>
-        <input id="newNumero" placeholder="Ex.: 3457" />
+        <input id="novoNumero" inputmode="numeric" placeholder="Ex.: 3457" />
       </div>
       <div>
         <label>Data</label>
-        <input id="newData" type="date" />
+        <input id="novaData" type="date" />
       </div>
     </div>
-
-    <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;align-items:center">
-      <label style="display:flex;gap:10px;align-items:center;margin:0">
-        <input type="checkbox" id="chkAtivo" checked style="width:auto" />
+    <div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+      <label style="display:flex;gap:10px;align-items:center;font-weight:800">
+        <input type="checkbox" id="chkAtivo" checked />
         Marcar este como concurso ativo
       </label>
-      <label style="display:flex;gap:10px;align-items:center;margin:0">
-        <input type="checkbox" id="chkClonar" checked style="width:auto" />
+      <label style="display:flex;gap:10px;align-items:center;font-weight:800">
+        <input type="checkbox" id="chkClone" checked />
         Clonar participantes do concurso selecionado (se existir)
       </label>
     </div>
-
-    <div style="margin-top:12px">
-      <button class="btn btn-green" id="btnCriar">Criar concurso</button>
+    <div style="margin-top:10px">
+      <button class="btn green" id="btnCriar">Criar concurso</button>
     </div>
   </div>
 
-  <div class="card" style="margin-top:14px">
-    <h2 style="margin-top:0">Adicionar participante ao concurso selecionado</h2>
-    <label>Nome do participante</label>
+  <div class="card section">
+    <h3>Adicionar participante ao concurso selecionado</h3>
     <div class="grid2">
-      <input id="addNome" placeholder="Ex.: João da Silva" />
-      <button class="btn btn-green" id="btnAdd">Adicionar</button>
+      <div>
+        <label>Nome do participante</label>
+        <input id="novoParticipante" placeholder="Ex.: João da Silva" />
+        <div class="muted">Será adicionado somente no concurso selecionado.</div>
+      </div>
+      <div style="display:flex;align-items:end;justify-content:flex-end">
+        <button class="btn green" id="btnAddPart">Adicionar</button>
+      </div>
     </div>
-    <div class="muted" style="margin-top:6px">Será adicionado somente no concurso selecionado.</div>
   </div>
 
-  <div style="margin-top:14px">
-    <h2>Participantes do concurso selecionado</h2>
-    <div class="muted" style="margin-bottom:10px">
-      Status muda a cor. “Pago” (no Admin) marca automaticamente <b>pagou_waldecir = TRUE</b> para somar no topo.
+  <div class="card section">
+    <h3>Buscar participante (no concurso selecionado)</h3>
+    <div class="searchBox">
+      <div>
+        <label>Buscar</label>
+        <input id="busca" placeholder="Digite parte do nome… (ex.: aníbal, carlos, etc)" />
+        <div class="muted">Mostra somente participantes do concurso aberto. Clique em <b>Abrir</b> para chamar o card completo.</div>
+      </div>
+      <button class="btn gray" id="btnLimparBusca">Limpar</button>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:60px">#</th>
-          <th>Nome</th>
-          <th style="width:170px">Status</th>
-          <th style="width:150px">Pago Waldecir</th>
-          <th style="width:150px">Pago Lotérica</th>
-          <th style="width:90px">Obs</th>
-          <th style="width:170px;text-align:right">Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tb"></tbody>
-    </table>
+    <div id="buscaResultados" class="results" style="display:none"></div>
   </div>
+
+  <div class="card section">
+    <h3>Participantes do concurso selecionado</h3>
+    <div class="muted">Status muda cor automaticamente. “Remover” remove apenas deste concurso.</div>
+    <div style="overflow:auto;margin-top:10px;border-radius:14px">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th>Nome</th>
+            <th style="width:190px">Status</th>
+            <th style="width:160px">Pago Waldecir</th>
+            <th style="width:160px">Pago Lotérica</th>
+            <th style="width:120px">Obs</th>
+            <th style="width:170px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
-<script>
-  // ========= CONFIG =========
-  const SUPABASE_URL = "https://reudmuwpcldymuwkdszk.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_i8PskNVeOK3YFniGzy2Eog_rjWlEZ7B"; // publishable
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  // ========= HELPERS =========
-  const $ = (id) => document.getElementById(id);
-  const msg = (type, text) => {
-    $("msg").innerHTML = `<div class="${type}">${text}</div>`;
-  };
-  const clearMsg = () => $("msg").innerHTML = "";
+  // =========================
+  // CONFIG - COLE AQUI
+  // =========================
+  const SUPABASE_URL = "COLE_AQUI_SUA_SUPABASE_URL"; // ex: https://xxxx.supabase.co
+  const SUPABASE_KEY = "COLE_AQUI_SUA_PUBLISHABLE_KEY"; // sb_publishable_...
 
-  function validateSupabase(){
-    if (!SUPABASE_URL || !SUPABASE_URL.includes("supabase.co")) {
-      msg("err","Configure SUPABASE_URL corretamente (tem que terminar com .supabase.co).");
-      return false;
-    }
-    if (!SUPABASE_KEY || !SUPABASE_KEY.startsWith("sb_publishable_")) {
-      msg("err","A SUPABASE_KEY precisa ser a <b>Publishable key</b> (começa com sb_publishable_). Não use secret/service_role.");
-      return false;
-    }
-    return true;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // =========================
+  // STATE
+  // =========================
+  let concursos = [];
+  let concursoSelId = "";
+  let participantes = [];
+  let participantesIndex = new Map(); // id -> index
+  let lastFlashId = null;
+
+  const el = (id)=>document.getElementById(id);
+  const errBox = el("errBox");
+  const selectConcurso = el("selectConcurso");
+  const tbody = el("tbody");
+
+  function showErr(msg){
+    errBox.style.display = "block";
+    errBox.textContent = msg;
+  }
+  function clearErr(){
+    errBox.style.display = "none";
+    errBox.textContent = "";
   }
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  function normalizeStr(s){
+    return (s||"")
+      .toString()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .toLowerCase().trim();
+  }
 
-  let concursos = [];
-  let concursoSelId = null;
-  let participantes = [];
+  // =========================
+  // STATUS MAP
+  // =========================
+  const STATUS = [
+    { value:"nao_entrou", label:"Não vai", css:"statusRow-nao_entrou" },
+    { value:"Pe",        label:"Prometeu", css:"statusRow-prometeu" },
+    { value:"pago",      label:"Pago", css:"statusRow-pago" },
+    { value:"Pc",        label:"Pago (confirmado)", css:"statusRow-pago" },
+  ];
 
-  // ========= QUERIES =========
+  function statusLabel(v){
+    const s = STATUS.find(x=>x.value===v);
+    return s ? s.label : (v||"—");
+  }
+  function statusCss(v){
+    const s = STATUS.find(x=>x.value===v);
+    return s ? s.css : "";
+  }
+
+  // =========================
+  // LOAD
+  // =========================
   async function loadConcursos(){
-    clearMsg();
-    $("selConcurso").innerHTML = `<option value="">Carregando...</option>`;
-    const { data, error } = await sb
-      .from("concursos")
-      .select("id,nome,numero,data,ativo,created_at")
-      .order("created_at", { ascending:false });
+    clearErr();
+    selectConcurso.innerHTML = `<option value="">Carregando...</option>`;
+    el("concursoAtivo").value = "—";
 
-    if (error) throw error;
+    try{
+      const { data, error } = await sb
+        .from("concursos")
+        .select("id,nome,numero,data,ativo")
+        .order("created_at", { ascending:false });
 
-    concursos = data || [];
-    if (!concursos.length){
-      $("selConcurso").innerHTML = `<option value="">(sem concursos)</option>`;
-      concursoSelId = null;
-      $("inpAtivo").value = "";
-      return;
+      if(error) throw error;
+
+      concursos = data || [];
+      if(!concursos.length){
+        selectConcurso.innerHTML = `<option value="">(nenhum concurso)</option>`;
+        return;
+      }
+
+      // preenche select
+      selectConcurso.innerHTML = `<option value="">Selecione...</option>` + concursos.map(c=>{
+        const n = c.numero ? ` (${c.numero})` : "";
+        const d = c.data ? ` – ${c.data}` : "";
+        return `<option value="${c.id}">${c.nome}${n}${d}</option>`;
+      }).join("");
+
+      // concurso ativo
+      const ativo = concursos.find(c=>c.ativo===true);
+      el("concursoAtivo").value = ativo ? ativo.nome : "—";
+
+      // seleciona o ativo por padrão, senão o primeiro
+      const pick = ativo?.id || concursos[0].id;
+      selectConcurso.value = pick;
+      concursoSelId = pick;
+
+      await loadParticipantes();
+
+    }catch(e){
+      showErr("Erro ao carregar concursos: " + (e?.message || e));
+      selectConcurso.innerHTML = `<option value="">(erro)</option>`;
     }
-
-    const ativo = concursos.find(c => c.ativo === true);
-    $("inpAtivo").value = ativo ? ativo.nome : "—";
-
-    // mantém seleção se possível
-    if (!concursoSelId) concursoSelId = ativo?.id || concursos[0].id;
-
-    $("selConcurso").innerHTML = concursos.map(c => {
-      const label = `${c.nome}${c.numero ? " ("+c.numero+")" : ""}`;
-      return `<option value="${c.id}" ${c.id===concursoSelId ? "selected":""}>${label}</option>`;
-    }).join("");
-
-    await loadParticipantes();
-    await loadResumo();
   }
 
   async function loadParticipantes(){
-    if (!concursoSelId){
-      $("tb").innerHTML = "";
-      participantes = [];
+    clearErr();
+    tbody.innerHTML = "";
+    participantes = [];
+    participantesIndex.clear();
+    lastFlashId = null;
+
+    if(!concursoSelId){
+      updateKpis();
       return;
     }
-    const { data, error } = await sb
-      .from("participantes")
-      .select("id,nome,status,pagou_waldecir,pagou_loterica,obs,created_at,concurso_id")
-      .eq("concurso_id", concursoSelId)
-      .order("created_at", { ascending:true });
 
-    if (error) throw error;
-    participantes = data || [];
-    renderTable();
+    try{
+      const { data, error } = await sb
+        .from("participantes")
+        .select("id,nome,status,pagou_waldecir,pagou_loterica,obs,concurso_id")
+        .eq("concurso_id", concursoSelId)
+        .order("nome", { ascending:true });
+
+      if(error) throw error;
+
+      participantes = data || [];
+      participantes.forEach((p, idx)=>participantesIndex.set(p.id, idx));
+
+      renderTable();
+      updateKpis();
+      renderBusca(); // atualiza lista se já tiver texto digitado
+    }catch(e){
+      showErr("Erro ao carregar participantes: " + (e?.message || e));
+      updateKpis();
+    }
   }
 
-  async function loadResumo(){
-    if (!concursoSelId){
-      $("kpiNaoVai").textContent = "0";
-      $("kpiWalde").textContent = "0";
-      $("kpiLoterica").textContent = "0";
-      return;
-    }
-    // Não vai
-    const { count: cNao, error: e1 } = await sb
-      .from("participantes")
-      .select("*", { count:"exact", head:true })
-      .eq("concurso_id", concursoSelId)
-      .eq("status", "nao_entrou");
-    if (e1) throw e1;
-
-    // Pago Waldecir
-    const { count: cW, error: e2 } = await sb
-      .from("participantes")
-      .select("*", { count:"exact", head:true })
-      .eq("concurso_id", concursoSelId)
-      .eq("pagou_waldecir", true);
-    if (e2) throw e2;
-
-    // Pago Lotérica
-    const { count: cL, error: e3 } = await sb
-      .from("participantes")
-      .select("*", { count:"exact", head:true })
-      .eq("concurso_id", concursoSelId)
-      .eq("pagou_loterica", true);
-    if (e3) throw e3;
-
-    $("kpiNaoVai").textContent = String(cNao || 0);
-    $("kpiWalde").textContent = String(cW || 0);
-    $("kpiLoterica").textContent = String(cL || 0);
+  function updateKpis(){
+    const naoVai = participantes.filter(p=>p.status==="nao_entrou").length;
+    const pagoW = participantes.filter(p=>p.pagou_waldecir===true).length;
+    const pagoL = participantes.filter(p=>p.pagou_loterica===true).length;
+    el("kpiNaoVai").textContent = naoVai;
+    el("kpiWalde").textContent = pagoW;
+    el("kpiLoterica").textContent = pagoL;
   }
 
-  // ========= RENDER =========
-  function statusLabel(v){
-    switch(v){
-      case "nao_entrou": return "Não vai";
-      case "Pe": return "Prometeu";
-      case "Pc": return "Confirmado";
-      case "pago": return "Pago";
-      default: return "Prometeu";
-    }
+  // =========================
+  // RENDER TABLE
+  // =========================
+  function makeStatusSelect(p){
+    const opts = STATUS.map(s=>{
+      const sel = (p.status===s.value) ? "selected" : "";
+      return `<option value="${s.value}" ${sel}>${s.label}</option>`;
+    }).join("");
+    return `<select data-act="status" data-id="${p.id}">${opts}</select>`;
+  }
+
+  function pillBool(val){
+    return val ? `<span class="pill ok">OK</span>` : `<span class="pill no">—</span>`;
   }
 
   function renderTable(){
-    $("tb").innerHTML = participantes.map((p, idx) => {
-      const st = p.status || "Pe";
+    tbody.innerHTML = participantes.map((p, i)=>{
+      const css = statusCss(p.status);
+      const obsVal = (p.obs ?? "");
       return `
-        <tr class="rowStatus-${st}">
-          <td data-label="#" style="font-weight:900">${idx+1}</td>
-          <td data-label="Nome">
-            <div class="name">${escapeHtml(p.nome || "")}</div>
-            <div class="sub">${p.id}</div>
+        <tr id="row-${p.id}" class="${css}">
+          <td><b>${i+1}</b></td>
+          <td>
+            <div style="font-weight:900">${p.nome||"(sem nome)"}</div>
+            <div class="tag">${p.id}</div>
           </td>
-
-          <td data-label="Status">
-            <select data-act="status" data-id="${p.id}">
-              <option value="nao_entrou" ${st==="nao_entrou"?"selected":""}>Não vai</option>
-              <option value="Pe" ${st==="Pe"?"selected":""}>Prometeu</option>
-              <option value="Pc" ${st==="Pc"?"selected":""}>Confirmado</option>
-              <option value="pago" ${st==="pago"?"selected":""}>Pago</option>
-            </select>
+          <td>${makeStatusSelect(p)}</td>
+          <td>
+            <button class="btn sm green" data-act="toggleW" data-id="${p.id}">
+              ${p.pagou_waldecir ? "OK" : "Marcar"}
+            </button>
           </td>
-
-          <td data-label="Pago Waldecir">
-            ${p.pagou_waldecir ? `<span class="pill pill-ok">OK</span>` : `<button class="btn btn-sm btn-gray" data-act="walde" data-id="${p.id}">Marcar</button>`}
+          <td>
+            <button class="btn sm green" data-act="toggleL" data-id="${p.id}">
+              ${p.pagou_loterica ? "OK" : "Marcar"}
+            </button>
           </td>
-
-          <td data-label="Pago Lotérica">
-            ${p.pagou_loterica ? `<span class="pill pill-ok">OK</span>` : `<button class="btn btn-sm btn-gray" data-act="loterica" data-id="${p.id}">Marcar</button>`}
+          <td>
+            <input data-act="obs" data-id="${p.id}" value="${String(obsVal).replaceAll('"','&quot;')}" placeholder="" />
           </td>
-
-          <td data-label="Obs">
-            <input class="obs" data-act="obs" data-id="${p.id}" value="${escapeAttr(p.obs || "")}" />
-          </td>
-
-          <td data-label="Ações" style="text-align:right">
-            <div class="actions">
-              <button class="btn btn-sm btn-blue" data-act="edit" data-id="${p.id}">Editar</button>
-              <button class="btn btn-sm btn-red" data-act="remove" data-id="${p.id}">Remover</button>
-            </div>
+          <td style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn sm blue" data-act="edit" data-id="${p.id}">Editar</button>
+            <button class="btn sm red" data-act="remove" data-id="${p.id}">Remover</button>
           </td>
         </tr>
       `;
     }).join("");
 
-    // delegação de eventos
-    $("tb").querySelectorAll("[data-act]").forEach(el => {
-      const act = el.getAttribute("data-act");
-      if (act === "status") {
-        el.addEventListener("change", onAction);
-      } else if (act === "obs") {
-        el.addEventListener("change", onAction);
-      } else {
-        el.addEventListener("click", onAction);
-      }
+    // listeners (delegation)
+    tbody.querySelectorAll("select[data-act='status']").forEach(sel=>{
+      sel.addEventListener("change", async (ev)=>{
+        const id = ev.target.dataset.id;
+        const value = ev.target.value;
+
+        // REGRA: no ADMIN, se status virar "pago", marca pagou_waldecir = true automaticamente
+        const patch = { status: value };
+        if(value === "pago") patch.pagou_waldecir = true;
+
+        await updateParticipante(id, patch, true);
+      });
+    });
+
+    tbody.querySelectorAll("input[data-act='obs']").forEach(inp=>{
+      let t=null;
+      inp.addEventListener("input", ()=>{
+        clearTimeout(t);
+        t = setTimeout(async ()=>{
+          const id = inp.dataset.id;
+          await updateParticipante(id, { obs: inp.value ?? "" }, false);
+        }, 350);
+      });
+    });
+
+    tbody.querySelectorAll("button[data-act]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const id = btn.dataset.id;
+        const act = btn.dataset.act;
+
+        if(act==="toggleW"){
+          const p = participantes[participantesIndex.get(id)];
+          await updateParticipante(id, { pagou_waldecir: !p.pagou_waldecir }, true);
+        }
+
+        if(act==="toggleL"){
+          const p = participantes[participantesIndex.get(id)];
+          await updateParticipante(id, { pagou_loterica: !p.pagou_loterica }, true);
+        }
+
+        if(act==="edit"){
+          const p = participantes[participantesIndex.get(id)];
+          const novoNome = prompt("Editar nome do participante:", p.nome || "");
+          if(novoNome===null) return;
+          const nome = novoNome.trim();
+          if(!nome) return alert("Nome inválido.");
+          await updateParticipante(id, { nome }, true);
+        }
+
+        if(act==="remove"){
+          if(!confirm("Remover este participante APENAS deste concurso?")) return;
+          await removerParticipante(id);
+        }
+      });
     });
   }
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-  function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
-
-  // ========= ACTIONS =========
-  async function onAction(ev){
-    const el = ev.currentTarget;
-    const act = el.getAttribute("data-act");
-    const id = el.getAttribute("data-id");
-    const p = participantes.find(x => x.id === id);
-    if (!p) return;
-
+  async function updateParticipante(id, patch, reloadAll){
+    clearErr();
     try{
-      clearMsg();
+      const { error } = await sb.from("participantes").update(patch).eq("id", id);
+      if(error) throw error;
 
-      if (act === "status"){
-        const canon = el.value; // nao_entrou | Pe | Pc | pago
-
-        // regra: se virar "pago" no ADMIN => pagou_waldecir = true
-        const patch = {
-          status: canon,
-          pagou_waldecir: (canon === "pago")
-        };
-
-        const { error } = await sb.from("participantes").update(patch).eq("id", id);
-        if (error) throw error;
-
-        await loadParticipantes();
-        await loadResumo();
-        return;
+      // atualiza local sem depender de reload completo
+      const idx = participantesIndex.get(id);
+      if(idx!==undefined){
+        participantes[idx] = { ...participantes[idx], ...patch };
       }
 
-      if (act === "obs"){
-        const obs = el.value ?? "";
-        const { error } = await sb.from("participantes").update({ obs }).eq("id", id);
-        if (error) throw error;
-        await loadParticipantes();
-        return;
+      if(reloadAll){
+        // re-render para refletir cor/status/botões e KPI
+        renderTable();
+        updateKpis();
+        renderBusca();
+      }else{
+        updateKpis();
       }
-
-      if (act === "walde"){
-        const { error } = await sb.from("participantes").update({ pagou_waldecir:true }).eq("id", id);
-        if (error) throw error;
-        await loadParticipantes();
-        await loadResumo();
-        return;
-      }
-
-      if (act === "loterica"){
-        const { error } = await sb.from("participantes").update({ pagou_loterica:true }).eq("id", id);
-        if (error) throw error;
-        await loadParticipantes();
-        await loadResumo();
-        return;
-      }
-
-      if (act === "edit"){
-        const novo = prompt("Editar nome do participante:", p.nome || "");
-        if (novo === null) return;
-        const nome = (novo || "").trim();
-        if (!nome) return msg("err","Nome não pode ficar vazio.");
-        const { error } = await sb.from("participantes").update({ nome }).eq("id", id);
-        if (error) throw error;
-        await loadParticipantes();
-        return;
-      }
-
-      if (act === "remove"){
-        const ok = confirm("Excluir este participante SOMENTE deste concurso?");
-        if (!ok) return;
-        const { error } = await sb.from("participantes").delete().eq("id", id);
-        if (error) throw error;
-        await loadParticipantes();
-        await loadResumo();
-        return;
-      }
-
     }catch(e){
-      msg("err","Erro: " + (e?.message || e));
-      console.error(e);
+      showErr("Erro ao salvar: " + (e?.message || e));
     }
   }
 
-  async function criarConcurso(){
-    const nome = ($("newNome").value || "").trim();
-    const numeroRaw = ($("newNumero").value || "").trim();
-    const data = $("newData").value || null;
-    const marcarAtivo = $("chkAtivo").checked;
-    const clonar = $("chkClonar").checked;
-
-    if (!nome) return msg("err","Informe o nome do concurso.");
-
-    const numero = numeroRaw ? Number(numeroRaw) : null;
-    if (numeroRaw && Number.isNaN(numero)) return msg("err","Número inválido.");
-
+  async function removerParticipante(id){
+    clearErr();
     try{
-      clearMsg();
+      const { error } = await sb.from("participantes").delete().eq("id", id);
+      if(error) throw error;
 
-      if (marcarAtivo){
-        // desativa todos
-        const { error: e0 } = await sb.from("concursos").update({ ativo:false }).neq("id", "00000000-0000-0000-0000-000000000000");
-        if (e0) throw e0;
-      }
+      participantes = participantes.filter(p=>p.id!==id);
+      participantesIndex.clear();
+      participantes.forEach((p, idx)=>participantesIndex.set(p.id, idx));
 
-      const payload = { nome, numero, data, ativo: !!marcarAtivo };
-      const { data: inserted, error } = await sb.from("concursos").insert(payload).select("id").single();
-      if (error) throw error;
-
-      const novoId = inserted.id;
-
-      if (clonar && concursoSelId){
-        // clona participantes do concurso selecionado
-        const { data: base, error: e1 } = await sb
-          .from("participantes")
-          .select("nome,status,obs")
-          .eq("concurso_id", concursoSelId);
-
-        if (e1) throw e1;
-
-        if (base?.length){
-          const rows = base.map(x => ({
-            concurso_id: novoId,
-            nome: x.nome,
-            status: x.status || "Pe",
-            obs: x.obs || "",
-            pagou_waldecir: false,
-            pagou_loterica: false
-          }));
-          const { error: e2 } = await sb.from("participantes").insert(rows);
-          if (e2) throw e2;
-        }
-      }
-
-      $("newNome").value = "";
-      $("newNumero").value = "";
-      $("newData").value = "";
-      msg("ok","Concurso criado com sucesso!");
-
-      concursoSelId = novoId;
-      await loadConcursos();
-
+      renderTable();
+      updateKpis();
+      renderBusca();
     }catch(e){
-      msg("err","Erro ao criar concurso: " + (e?.message || e));
-      console.error(e);
+      showErr("Erro ao remover: " + (e?.message || e));
     }
   }
 
-  async function addParticipante(){
-    const nome = ($("addNome").value || "").trim();
-    if (!concursoSelId) return msg("err","Selecione um concurso.");
-    if (!nome) return msg("err","Informe o nome do participante.");
+  // =========================
+  // BUSCA + ABRIR CARD
+  // =========================
+  const busca = el("busca");
+  const buscaResultados = el("buscaResultados");
+
+  function renderBusca(){
+    const q = normalizeStr(busca.value);
+    if(!q){
+      buscaResultados.style.display = "none";
+      buscaResultados.innerHTML = "";
+      return;
+    }
+
+    const matches = participantes
+      .filter(p => normalizeStr(p.nome).includes(q) || normalizeStr(p.obs).includes(q))
+      .slice(0, 30);
+
+    if(!matches.length){
+      buscaResultados.style.display = "block";
+      buscaResultados.innerHTML = `<div class="resItem"><div><div class="resName">Nenhum resultado</div><div class="resMeta">Tente outro termo.</div></div></div>`;
+      return;
+    }
+
+    buscaResultados.style.display = "block";
+    buscaResultados.innerHTML = matches.map(p=>{
+      return `
+        <div class="resItem">
+          <div>
+            <div class="resName">${p.nome}</div>
+            <div class="resMeta">Status: ${statusLabel(p.status)} • Obs: ${p.obs ?? ""}</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn sm blue" data-open="${p.id}">Abrir</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    buscaResultados.querySelectorAll("button[data-open]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        openCard(b.dataset.open);
+      });
+    });
+  }
+
+  function openCard(id){
+    const row = document.getElementById("row-"+id);
+    if(!row) return;
+
+    if(lastFlashId){
+      const prev = document.getElementById("row-"+lastFlashId);
+      if(prev) prev.classList.remove("flash");
+    }
+    lastFlashId = id;
+
+    row.scrollIntoView({ behavior:"smooth", block:"center" });
+    row.classList.add("flash");
+    setTimeout(()=>row.classList.remove("flash"), 1800);
+  }
+
+  busca.addEventListener("input", ()=>renderBusca());
+  el("btnLimparBusca").addEventListener("click", ()=>{
+    busca.value = "";
+    renderBusca();
+  });
+
+  // =========================
+  // ACTIONS
+  // =========================
+  selectConcurso.addEventListener("change", async ()=>{
+    concursoSelId = selectConcurso.value || "";
+    await loadParticipantes();
+  });
+
+  el("btnReload").addEventListener("click", async ()=>{
+    await loadConcursos();
+  });
+
+  el("btnAddPart").addEventListener("click", async ()=>{
+    clearErr();
+    const nome = (el("novoParticipante").value || "").trim();
+    if(!concursoSelId) return alert("Selecione um concurso primeiro.");
+    if(!nome) return alert("Digite o nome do participante.");
 
     try{
-      clearMsg();
-      const row = {
-        concurso_id: concursoSelId,
+      const payload = {
         nome,
-        status: "Pe",
+        concurso_id: concursoSelId,
+        status: "Pe", // padrão: Prometeu
         pagou_waldecir: false,
         pagou_loterica: false,
         obs: ""
       };
-      const { error } = await sb.from("participantes").insert(row);
-      if (error) throw error;
+      const { error } = await sb.from("participantes").insert(payload);
+      if(error) throw error;
 
-      $("addNome").value = "";
+      el("novoParticipante").value = "";
       await loadParticipantes();
-      await loadResumo();
-
     }catch(e){
-      msg("err","Erro ao adicionar: " + (e?.message || e));
-      console.error(e);
+      showErr("Erro ao adicionar participante: " + (e?.message || e));
     }
-  }
+  });
 
-  // ========= INIT =========
-  (async function init(){
+  el("btnCriar").addEventListener("click", async ()=>{
+    clearErr();
+    const nome = (el("novoNome").value || "").trim();
+    const numeroTxt = (el("novoNumero").value || "").trim();
+    const data = el("novaData").value || null;
+    const ativo = el("chkAtivo").checked;
+    const clonar = el("chkClone").checked;
+
+    if(!nome) return alert("Digite o nome do concurso.");
+
+    const numero = numeroTxt ? Number(numeroTxt) : null;
+    if(numeroTxt && Number.isNaN(numero)) return alert("Número inválido.");
+
     try{
-      if (!validateSupabase()) return;
-      $("btnReload").addEventListener("click", () => loadConcursos().catch(err => msg("err","Erro ao carregar concursos: " + (err?.message||err))));
-      $("selConcurso").addEventListener("change", async () => {
-        concursoSelId = $("selConcurso").value || null;
-        await loadParticipantes();
-        await loadResumo();
-      });
-      $("btnCriar").addEventListener("click", criarConcurso);
-      $("btnAdd").addEventListener("click", addParticipante);
+      // se marcar ativo, desativa os outros
+      if(ativo){
+        const { error: e0 } = await sb.from("concursos").update({ ativo:false }).neq("id", "00000000-0000-0000-0000-000000000000");
+        if(e0) throw e0;
+      }
+
+      const { data: inserted, error } = await sb
+        .from("concursos")
+        .insert({ nome, numero, data, ativo })
+        .select("id")
+        .single();
+
+      if(error) throw error;
+
+      const novoId = inserted.id;
+
+      // clonar participantes do concurso selecionado
+      if(clonar && concursoSelId){
+        const { data: src, error: e1 } = await sb
+          .from("participantes")
+          .select("nome,status,pagou_waldecir,pagou_loterica,obs")
+          .eq("concurso_id", concursoSelId);
+
+        if(e1) throw e1;
+
+        if((src||[]).length){
+          const clones = src.map(p=>({
+            nome: p.nome,
+            status: p.status ?? "Pe",
+            pagou_waldecir: false,
+            pagou_loterica: false,
+            obs: p.obs ?? "",
+            concurso_id: novoId
+          }));
+          const { error: e2 } = await sb.from("participantes").insert(clones);
+          if(e2) throw e2;
+        }
+      }
+
+      // limpa form
+      el("novoNome").value = "";
+      el("novoNumero").value = "";
+      el("novaData").value = "";
 
       await loadConcursos();
+      selectConcurso.value = novoId;
+      concursoSelId = novoId;
+      await loadParticipantes();
 
     }catch(e){
-      msg("err","Erro ao carregar concursos: " + (e?.message || e));
-      console.error(e);
+      showErr("Erro ao criar concurso: " + (e?.message || e));
     }
+  });
+
+  // =========================
+  // INIT
+  // =========================
+  (async function init(){
+    // validações simples (evita “Failed to fetch” por URL vazia)
+    if(!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.startsWith("COLE_") || SUPABASE_KEY.startsWith("COLE_")){
+      showErr("Configure SUPABASE_URL e SUPABASE_KEY (publishable) no topo do arquivo.");
+      selectConcurso.innerHTML = `<option value="">(configure URL/Key)</option>`;
+      return;
+    }
+    await loadConcursos();
   })();
 </script>
 </body>
